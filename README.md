@@ -1,0 +1,1 @@
+A library for parsing GTINs (Global Trade Item Numbers).
