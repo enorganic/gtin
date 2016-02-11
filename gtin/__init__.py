@@ -1,7 +1,7 @@
 """
 @author: David Belais <davebelais@gmail.com>
 
-A library for parsing GTINs (Global Trade Item Numbers).
+A library for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 """
 
 import re
