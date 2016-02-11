@@ -5,13 +5,13 @@ gtin
 A library for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 
 gtin.GTIN
----------
+~~~~~~~~~
 
 ::
 This class represents a Global Trade Item Number, and can be used to:
-    - Identify a trade item's GCP (GS1 Company Prefix), Item Reference, and Indicator Digit.
-    - Validate a GTIN's check-digit.
-    - Calculate a check-digit from a raw GTIN.
+- Identify a trade item's GCP (GS1 Company Prefix), Item Reference, and Indicator Digit.
+- Validate a GTIN's check-digit.
+- Calculate a check-digit from a raw GTIN.
 
 Typical usage will require converting your `GTIN` to a `str` prior to use in your application:
 >>> print(repr(GTIN()))
