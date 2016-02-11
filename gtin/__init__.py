@@ -50,21 +50,21 @@ class GTIN:
     >>> print(str(GTIN()))
     00000000000000
 
-    # Given a raw gtin, the check-digit is calculated and appended.
+    Given a raw gtin, the check-digit is calculated and appended.
     >>> print(str(GTIN(raw='0978289450809')))
     09782894508091
 
-    # Given a valid gtin as a string, the `GTIN.__str__` output is the same as the GTIN provided.
+    Given a valid gtin as a string, the `GTIN.__str__` output is the same as the GTIN provided.
     >>> print(str(GTIN('04000101613600')))
     04000101613600
 
-    # Given a GTIN as an integer, the length defaults to 14.
+    Given a GTIN as an integer, the length defaults to 14.
     >>> print(str(GTIN(raw=7447010150)))
     00074470101505
     >>> print(str(GTIN(74470101505)))
     00074470101505
 
-    # Given a GTIN, and a length:
+    Given a GTIN, and a length:
     >>> print(str(GTIN(raw=7447010150,length=12)))
     074470101505
     >>> print(str(GTIN(74470101505,length=12)))
