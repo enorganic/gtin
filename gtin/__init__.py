@@ -387,4 +387,3 @@ class GTIN:
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
-    #print(tuple(tuple(GTIN(raw='0400010161360'))))
