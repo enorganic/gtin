@@ -48,7 +48,13 @@ man_pages = [
      [author], 1)
 ]
 texinfo_documents = [
-    (master_doc, 'gtin', 'gtin Documentation',
-     author, 'gtin', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'gtin',
+        'gtin Documentation',
+        author,
+        'gtin',
+        'A python module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
+        'Miscellaneous'
+    ),
 ]
