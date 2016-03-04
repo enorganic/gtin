@@ -13,8 +13,6 @@ from typing import Union
 
 from gtin.gcp import prefixes_lengths as gcp_prefixes_lengths
 
-__version__ = '0.1.1'
-
 __all__ = [
     'GTIN',
     'GTINError',

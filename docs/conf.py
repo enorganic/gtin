@@ -1,3 +1,4 @@
+import pkg_resources
 from os import environ
 from sys import path
 from os.path import dirname, abspath, join
@@ -7,7 +8,6 @@ d = dirname(abspath(__file__))
 pd = dirname(d)
 
 path.insert(0,pd)
-import gtin
 
 copy2(
     join(pd,'README.rst'),
@@ -19,12 +19,13 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.viewcode',
 ]
+
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'gtin'
 copyright = '2016, David Belais'
 author = 'David Belais'
-release = gtin.__version__
+release = pkg_resources.get_distribution('gtin').version
 language = None
 exclude_patterns = ['_build']
 pygments_style = 'sphinx'

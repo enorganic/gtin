@@ -20,7 +20,7 @@ setup(
 
     # See https://www.python.org/dev/peps/pep-0440/
     # TODO: https://packaging.python.org/en/latest/single_source_version.html
-    version='0.1.0',
+    version='0.1.1',
 
     description='A module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
     long_description=long_description,
