@@ -1,5 +1,5 @@
 gtin
-=========
+====
 
 A module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 
