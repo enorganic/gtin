@@ -25,7 +25,10 @@ master_doc = 'index'
 project = 'gtin'
 copyright = '2016, David Belais'
 author = 'David Belais'
-release = pkg_resources.get_distribution('gtin').version
+try:
+    release = pkg_resources.get_distribution('gtin').version
+except pkg_resources.DistributionNotFound:
+    release = '0.0.0'
 language = None
 exclude_patterns = ['_build']
 pygments_style = 'sphinx'
