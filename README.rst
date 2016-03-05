@@ -5,7 +5,7 @@ A python package for parsing GTINs ("Global Trade Item Numbers"—also known as 
 
 To install::
 
-    $ pip install gtin
+$ pip install gtin
 
 gtin.GTIN
 ---------
@@ -15,6 +15,8 @@ This class represents a Global Trade Item Number, and can be used to:
 - Identify a trade item's GCP (GS1 Company Prefix), Item Reference, and Indicator Digit.
 - Validate a GTIN's check-digit.
 - Calculate a check-digit from a raw GTIN.
+
+>>> from gtin import GTIN
 
 **Parameters**:
 
