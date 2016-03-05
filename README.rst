@@ -16,8 +16,6 @@ This class represents a Global Trade Item Number, and can be used to:
 - Validate a GTIN's check-digit.
 - Calculate a check-digit from a raw GTIN.
 
->>> from gtin import GTIN
-
 **Parameters**:
 
 :gtin:
@@ -75,6 +73,8 @@ pass the components of the GTIN separately: the indicator digit, GCP (GS1 Compan
 
 Examples
 ~~~~~~~~
+
+>>> from gtin import GTIN
 
 A *GTIN* initialized without any arguments:
 

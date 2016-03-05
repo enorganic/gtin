@@ -58,13 +58,23 @@ class GCPNotFoundError(GTINError,ValueError):
 @python_2_unicode_compatible
 class GTIN:
     """
+    gtin
+    ====
+
+    A python package for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
+
+    To install::
+
+    $ pip install gtin
+
+    gtin.GTIN
+    ---------
+
     This class represents a Global Trade Item Number, and can be used to:
 
     - Identify a trade item's GCP (GS1 Company Prefix), Item Reference, and Indicator Digit.
     - Validate a GTIN's check-digit.
     - Calculate a check-digit from a raw GTIN.
-
-    >>> from gtin import GTIN
 
     **Parameters**:
 
@@ -123,6 +133,8 @@ class GTIN:
 
     Examples
     ~~~~~~~~
+
+    >>> from gtin import GTIN
 
     A *GTIN* initialized without any arguments:
 
