@@ -20,7 +20,7 @@ with open(
     long_description = f.read()
 
 setup(
-    name='gepir',
+    name='gtin',
 
     version='0.1.1',
 
@@ -72,11 +72,13 @@ setup(
     },
 
     package_data={
-        'gepir': ['gcp/*.xml'],
+        'gtin': ['gcp/*.xml'],
     },
 
     # See http://docs.python.org/3.5/distutils/setupscript.html#installing-additional-files
     data_files=[],
 
-    entry_points={},
+    entry_points={
+        'console_scripts': [],
+    }
 )
