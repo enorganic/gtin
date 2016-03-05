@@ -64,6 +64,8 @@ class GTIN:
     - Validate a GTIN's check-digit.
     - Calculate a check-digit from a raw GTIN.
 
+    >>> from gtin import GTIN
+
     **Parameters**:
 
     :gtin:
