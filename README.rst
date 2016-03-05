@@ -1,7 +1,11 @@
 gtin
 ====
 
-A python module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
+A python package for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
+
+To install:
+
+$ pip install gtin
 
 gtin.GTIN
 ---------

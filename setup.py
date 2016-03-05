@@ -1,5 +1,5 @@
 """
-A package for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
+A python package for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 
 See:
 https://github.com/davebelais/gtin
@@ -9,17 +9,19 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+# Get a long description from the README file
+with open(
+    path.join(
+        path.abspath(path.dirname(__file__)),
+        'README.rst'
+    ),
+    encoding='utf-8'
+) as f:
     long_description = f.read()
 
 setup(
     name='gepir',
 
-    # See https://www.python.org/dev/peps/pep-0440/
-    # TODO: https://packaging.python.org/en/latest/single_source_version.html
     version='0.1.1',
 
     description='A module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
@@ -43,11 +45,11 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
-        # 'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.2',
-        # 'Programming Language :: Python :: 3.3',
-        # 'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
 
@@ -57,8 +59,11 @@ setup(
     # packages=[], # explicitly set packages
     # py_modules=[], # Single-file module names
 
+    # dependencies
     # See https://packaging.python.org/en/latest/requirements.html
-    install_requires=[],
+    install_requires=[
+        'future>=0.15.2'
+    ],
 
     # pip install -e .[dev,test]
     extras_require={
