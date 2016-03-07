@@ -4,6 +4,9 @@ from sys import path
 from os.path import dirname, abspath, join
 from shutil import copy2
 
+# This package is very simple, so the README file is able to cover all needed documentation.
+# We simply copy the README file during the Sphinx build process.
+
 d = dirname(abspath(__file__))
 pd = dirname(d)
 
@@ -51,8 +54,13 @@ latex_documents = [
      'David Belais', 'manual'),
 ]
 man_pages = [
-    (master_doc, 'gtin', 'gtin Documentation',
-     [author], 1)
+    (
+        master_doc,
+        'gtin',
+        'gtin Documentation',
+        [author],
+        1
+    )
 ]
 texinfo_documents = [
     (
