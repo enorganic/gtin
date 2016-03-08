@@ -67,8 +67,8 @@ setup(
 
     # pip install -e .[dev,test]
     extras_require={
-        'dev': [],
-        'test': [],
+        'dev': ['pytest>=2.9.0'],
+        'test': ['pytest>=2.9.0'],
     },
 
     package_data={

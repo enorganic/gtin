@@ -212,7 +212,10 @@ class GTIN:
             length = None
         self.data = Data
         if gtin is not None:
-            if isinstance(gtin,(str,bytes)):
+            if isinstance(gtin,self.__class__):
+                raw = gtin.raw
+                length = len(gtin)
+            elif isinstance(gtin,(str,bytes)):
                 if isinstance(gtin,bytes):
                     gtin = str(gtin, encoding='utf-8', errors='ignore')
                 gtin = re.sub(r'[^\d]', '', gtin)
@@ -361,6 +364,13 @@ class GTIN:
                 value = re.sub(r'[^\d]','',value)
                 self.length = len(value) + 1
             self.data.raw = abs(int(value))
+            integer_string = str(self.data.raw)
+            length = len(self)
+            if length >= len(integer_string):
+                raise ValueError(
+                    'The integer value of *raw* must contain '+
+                    'fewer digits than *GTIN.length*.'
+                )
 
     @functools.lru_cache(maxsize=None)
     def get_check_digit(self):
@@ -456,5 +466,6 @@ class GTIN:
 
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    #import doctest
+    #doctest.testmod()
+    print(GTIN(raw='0123456789012'))
