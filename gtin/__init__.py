@@ -13,8 +13,7 @@ from future.utils import python_2_unicode_compatible
 
 import re
 import functools
-from numbers import Number, Real
-from typing import Union
+from numbers import Number
 
 from gtin.gcp import prefixes_lengths as gcp_prefixes_lengths
 
