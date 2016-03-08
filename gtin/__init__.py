@@ -158,7 +158,7 @@ class GTIN:
 
     Non-numeric characters are ignored/discarded.
 
-    >>> print(str(GTIN('0-4000101-6136-0')))
+    >>> print(str(GTIN('0-4000101-61360-0')))
     04000101613600
 
     Given a an *int* for the parameter *raw*, the length defaults to 14.
@@ -200,13 +200,13 @@ class GTIN:
 
     def __init__(
         self,
-        gtin=None, # type: Union[str,Real,None]
-        length=None, # type: Union[Real,None]
-        raw=None, # type: Union[str,Real,None]
-        indicator_digit=None, # type: Union[str,Real,None]
-        gcp=None, # type: Union[str,None]
-        item_reference=None, # type: Union[str,Real,None]
-        check_digit=None # type: Union[str,Real,None]
+        gtin=None,
+        length=None,
+        raw=None,
+        indicator_digit=None,
+        gcp=None,
+        item_reference=None,
+        check_digit=None
     ):
         class Data:
             raw = None
@@ -215,8 +215,8 @@ class GTIN:
         if gtin is not None:
             if isinstance(gtin,(str,bytes)):
                 if isinstance(gtin,bytes):
-                    gtin = str(gtin,encoding='utf-8',errors='ignore')
-                gtin = re.sub(r'[^\d]','',gtin)
+                    gtin = str(gtin, encoding='utf-8', errors='ignore')
+                gtin = re.sub(r'[^\d]', '', gtin)
                 if length is None:
                     length = len(gtin)
                     if check_digit is not None:
@@ -336,7 +336,7 @@ class GTIN:
         return self.data.length
 
     @length.setter
-    def length(self, l: int):
+    def length(self, l):
         self.__str__.cache_clear()
         self.data.length = abs(int(l))
 
@@ -345,7 +345,7 @@ class GTIN:
         return self.data.raw
 
     @raw.setter
-    def raw(self,value: Union[str,Number,None]):
+    def raw(self,value):
         self.__str__.cache_clear()
         self.get_check_digit.cache_clear()
         self.get_gcp.cache_clear()
