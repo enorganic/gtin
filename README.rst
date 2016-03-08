@@ -98,7 +98,7 @@ Given a valid GTIN *str* for *gtin*, the return value of *str(GTIN(gtin))* is eq
 
 Non-numeric characters are ignored/discarded.
 
->>> print(str(GTIN('0-4000101-6136-0')))
+>>> print(str(GTIN('0-4000101-6136-00')))
 04000101613600
 
 Given a an *int* for the parameter *raw*, the length defaults to 14.
