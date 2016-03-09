@@ -366,10 +366,10 @@ class GTIN:
             self.data.raw = abs(int(value))
             integer_string = str(self.data.raw)
             length = len(self)
-            if length >= len(integer_string):
+            if length <= len(integer_string):
                 raise ValueError(
-                    'The integer value of *raw* must contain '+
-                    'fewer digits than *GTIN.length*.'
+                    'The value %s for raw has too many ' % repr(self.data.raw) +
+                    'digits for a GTIN with a length of %s.' % str(length)
                 )
 
     @functools.lru_cache(maxsize=None)
