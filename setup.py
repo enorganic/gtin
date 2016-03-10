@@ -9,15 +9,34 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+d = path.abspath(path.dirname(__file__))
+
 # Get a long description from the README file
 with open(
     path.join(
-        path.abspath(path.dirname(__file__)),
+        d,
         'README.rst'
     ),
     encoding='utf-8'
 ) as f:
     long_description = f.read()
+
+install_requires = []
+try:
+    # Get installation requirements
+    with open(
+        path.join(
+            d,
+            'requirements.txt'
+        ),
+        encoding='utf-8'
+    ) as f:
+        for r in f.readlines():
+            r = r.strip()
+            if r and r != 'gtin':
+                install_requires.append(r)
+except FileExistsError:
+    pass
 
 setup(
     name='gtin',
@@ -61,9 +80,7 @@ setup(
 
     # dependencies
     # See https://packaging.python.org/en/latest/requirements.html
-    install_requires=[
-        'future>=0.15.2'
-    ],
+    install_requires=install_requires,
 
     # pip install -e .[dev,test]
     extras_require={
