@@ -1,32 +1,35 @@
-from builtins import int, str
+"""
+Type declarations for use with Python 3.5+.
+"""
+
 from numbers import Number, Real
 from typing import Union, Optional, Iterable
 import functools
 
 
 class GTIN:
-
     def __init__(
         self,
-        gtin: Optional[Union[str,Real]]=None,
-        length: Optional[Union[Real]]=None,
-        raw: Optional[Union[str,Real]]=None,
-        indicator_digit: Optional[Union[str,Real]]=None,
-        gcp: Optional[str]=None,
-        item_reference: Optional[Union[str,Real]]=None,
-        check_digit: Optional[Union[str,Real]]=None
+        gtin: Optional[Union[str, Real]] = None,
+        length: Optional[Union[Real]] = None,
+        raw: Optional[Union[str, Real]] = None,
+        indicator_digit: Optional[Union[str, Real]] = None,
+        gcp: Optional[str] = None,
+        item_reference: Optional[Union[str, Real]] = None,
+        check_digit: Optional[Union[str, Real]] = None
     ):
         class Data:
-            raw = None # type: int
-            length = None # type: int
-        self.data = None # type: 'Data'
+            raw = 0  # type: int
+            length = 0  # type: int
+
+        self.data = Data()  # type: 'Data'
 
     def __len__(self) -> int:
-        pass
+        return 0
 
     @property
     def length(self) -> int:
-        return self.data.length
+        return 0
 
     @length.setter
     def length(self, l: int) -> None:
@@ -34,55 +37,55 @@ class GTIN:
 
     @property
     def raw(self) -> int:
-        pass
+        return 0
 
     @raw.setter
-    def raw(self,value: Optional[Union[str,Number]]) -> None:
+    def raw(self, value: Union[str, Number]) -> None:
         pass
 
     @functools.lru_cache()
-    def get_check_digit(self) -> Optional[str]:
-        pass
+    def get_check_digit(self) -> str:
+        return '0'
 
     @property
-    def check_digit(self) -> Optional[str]:
-        pass
+    def check_digit(self) -> str:
+        return '0'
 
     @functools.lru_cache()
     def get_gcp(self) -> Optional[str]:
-        pass
+        return None
 
     @property
     def gcp(self) -> Optional[str]:
-        pass
+        return None
 
     @property
     def indicator_digit(self) -> str:
-        pass
+        return ''
 
     @property
     def indicator_digit(self) -> str:
-        pass
+        return ''
 
     @property
     def item_reference(self) -> str:
-        pass
+        return ''
 
     def __int__(self) -> int:
-        pass
+        return 0
 
     def __float__(self) -> float:
-        pass
+        return 0.0
 
     @functools.lru_cache()
     def __str__(self) -> str:
-        pass
+        return ''
 
     def __hash__(self) -> int:
-        pass
+        return 0
 
     def __repr__(self) -> str:
-        pass
+        return ''
 
-    def __iter__(self) -> Iterable:
-        pass
+    def __iter__(self) -> Iterable[str]:
+        yield ''

@@ -1,16 +1,19 @@
 """
-@author: David Belais
-This module provides an interface for looking up a GCP by GTIN.
+This module assembles a cross-reference used by *gtin.GTIN*
+to determine the length of a GCP (GS1 Company Prefix).
 """
+
+# Python 2 compatibility
+from future.standard_library import install_aliases
+install_aliases()
+
 import os
 import functools
 import re
 import warnings
 from urllib.error import HTTPError
 from urllib.request import urlopen
-
 from datetime import datetime
-
 from xml.etree import ElementTree
 
 GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/GCPPrefixFormatList.xml'
@@ -25,7 +28,7 @@ GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(
 
 
 @functools.lru_cache(maxsize=1)
-def prefixes_lengths():
+def prefixes_lengths(local=False):
     """
     This function provides a current mapping of GS1 prefixes to the length
     of GTIN Company Prefixes beginning with each prefix. Note: The "prefix"
@@ -33,52 +36,56 @@ def prefixes_lengths():
     first digit indicates the logistic unit level ("0" indicates a consumer-level
     unit).
 
+    :param local:
+
+        If *True*, a local, cached GCP prefix format list will be used instead of checking for an
+        updated copy online.
     """
-    pl=dict()
+    pl = {}
     gcp_prefix_format_list = None
-    try:
-        with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as r:
-            gcp_prefix_format_list = r.read()
-            if isinstance(gcp_prefix_format_list,bytes):
-                gcp_prefix_format_list = re.sub(
-                    r'[\r\n][\r\n]+',
-                    r'\n',
-                    str(
-                        gcp_prefix_format_list,
-                        encoding='utf-8',
-                        errors='ignore'
+    if not local:
+        try:
+            with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as r:
+                gcp_prefix_format_list = r.read()
+                if isinstance(gcp_prefix_format_list, bytes):
+                    gcp_prefix_format_list = re.sub(
+                        r'[\r\n][\r\n]+',
+                        r'\n',
+                        str(
+                            gcp_prefix_format_list,
+                            encoding='utf-8',
+                            errors='ignore'
+                        )
                     )
+        except HTTPError:
+            updated = datetime.fromtimestamp(os.path.getmtime(
+                GCP_PREFIX_FORMAT_LIST_PATH
+            )).date()
+            warnings.warn(
+                (
+                    'The GCP prefix list could not be retrieved from "%(url)s". ' +
+                    'A cached copy of this file, last updated on %(updated)s, will be used instead.'
+                ) % dict(
+                    url=GCP_PREFIX_FORMAT_LIST_URL,
+                    updated=str(updated)
                 )
-    except HTTPError as e:
-        updated = datetime.fromtimestamp(os.path.getmtime(
-            GCP_PREFIX_FORMAT_LIST_PATH
-        )).date()
-        warnings.warn(
-            (
-                'The GCP prefix list could not be retrieved from "%(url)s". ' +
-                'A cached copy of this file, last updated on %(updated)s, will be used instead.'
-            ) % dict(
-                url = GCP_PREFIX_FORMAT_LIST_URL,
-                updated = str(updated)
             )
-        )
-    finally:
-        local_gcp_prefix_format_list = None
-        with open(GCP_PREFIX_FORMAT_LIST_PATH,mode='r') as f:
-            local_gcp_prefix_format_list = f.read()
-            if isinstance(local_gcp_prefix_format_list,bytes):
-                local_gcp_prefix_format_list = str(
-                    local_gcp_prefix_format_list,
-                    encoding='utf-8',
-                    errors='ignore'
-                )
-        if gcp_prefix_format_list is None:
-            gcp_prefix_format_list = local_gcp_prefix_format_list
-        else:
-            if local_gcp_prefix_format_list != gcp_prefix_format_list:
-                with open(GCP_PREFIX_FORMAT_LIST_PATH,mode='w') as f:
-                    f.write(gcp_prefix_format_list)
-    tree=ElementTree.fromstring(
+    local_gcp_prefix_format_list = None
+    with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r') as f:
+        local_gcp_prefix_format_list = f.read()
+        if isinstance(local_gcp_prefix_format_list, bytes):
+            local_gcp_prefix_format_list = str(
+                local_gcp_prefix_format_list,
+                encoding='utf-8',
+                errors='ignore'
+            )
+    if gcp_prefix_format_list is None:
+        gcp_prefix_format_list = local_gcp_prefix_format_list
+    else:
+        if local_gcp_prefix_format_list != gcp_prefix_format_list:
+            with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='w') as f:
+                f.write(gcp_prefix_format_list)
+    tree = ElementTree.fromstring(
         gcp_prefix_format_list
     )
     for entry in (
@@ -95,6 +102,8 @@ def prefixes_lengths():
         )
     return pl
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

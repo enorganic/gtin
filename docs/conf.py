@@ -10,11 +10,11 @@ from shutil import copy2
 d = dirname(abspath(__file__))
 pd = dirname(d)
 
-path.insert(0,pd)
+path.insert(0, pd)
 
 copy2(
-    join(pd,'README.rst'),
-    join(d,'index.rst')
+    join(pd, 'README.rst'),
+    join(d, 'index.rst')
 )
 
 del d, pd
@@ -71,5 +71,5 @@ texinfo_documents = [
         'gtin',
         'A python module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
         'Miscellaneous'
-    ),
+    )
 ]
