@@ -1,14 +1,7 @@
 from decimal import Decimal
 
-from pytest import fixture
-
 from gtin import GTIN, GCPNotFoundError
 from gtin.gcp import prefixes_lengths
-
-
-@fixture
-def gcp_prefixes_lengths():
-    return prefixes_lengths()
 
 
 def test_check_digit():
@@ -53,7 +46,8 @@ def test_str():
     assert str(GTIN(GTIN('01234565'), length=8)) == '01234565'
 
 
-def test_gcp(gcp_prefixes_lengths):
+def test_gcp():
+    gcp_prefixes_lengths = prefixes_lengths(local=True)
     # GS1 US
     assert gcp_prefixes_lengths['03321'] == 6
     assert GTIN('00332100000001').gcp == '033210'
@@ -75,4 +69,4 @@ def test_gcp(gcp_prefixes_lengths):
 if __name__ == '__main__':
     test_check_digit()
     test_str()
-    test_gcp(gcp_prefixes_lengths())
+    test_gcp()

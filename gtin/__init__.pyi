@@ -21,7 +21,6 @@ class GTIN:
         class Data:
             raw = 0  # type: int
             length = 0  # type: int
-
         self.data = Data()  # type: 'Data'
 
     def __len__(self) -> int:

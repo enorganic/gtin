@@ -21,27 +21,10 @@ with open(
 ) as f:
     long_description = f.read()
 
-install_requires = []
-try:
-    # Get installation requirements
-    with open(
-        path.join(
-            d,
-            'requirements.txt'
-        ),
-        encoding='utf-8'
-    ) as f:
-        for r in f.readlines():
-            r = r.strip()
-            if r and r != 'gtin':
-                install_requires.append(r)
-except FileExistsError:
-    pass
-
 setup(
     name='gtin',
 
-    version='0.1.1',
+    version='0.1.2',
 
     description='A module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
     long_description=long_description,
@@ -80,7 +63,9 @@ setup(
 
     # dependencies
     # See https://packaging.python.org/en/latest/requirements.html
-    install_requires=install_requires,
+    install_requires=[
+        'future>=0.15.2',
+    ],
 
     # pip install -e .[dev,test]
     extras_require={

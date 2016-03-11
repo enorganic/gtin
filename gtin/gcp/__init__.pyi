@@ -2,12 +2,13 @@
 Type declarations for use with Python 3.5+.
 """
 import functools
-from typing import Dict, IO
+from typing import Dict, IO, Optional
 from xml.etree.ElementTree import Element
 from datetime import date
 
 GCP_PREFIX_FORMAT_LIST_URL = ''  # type: str
 GCP_PREFIX_FORMAT_LIST_PATH = ''  # type: str
+
 
 @functools.lru_cache()
 def prefixes_lengths(local: bool=False) -> Dict:
