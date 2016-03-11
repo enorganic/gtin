@@ -11,10 +11,16 @@ import os
 import functools
 import re
 import warnings
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 from datetime import datetime
 from xml.etree import ElementTree
+
+__all__ = [
+    'GCP_PREFIX_FORMAT_LIST_URL',
+    'GCP_PREFIX_FORMAT_LIST_PATH',
+    'prefixes_lengths'
+]
 
 GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/GCPPrefixFormatList.xml'
 GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(
@@ -57,7 +63,7 @@ def prefixes_lengths(local=False):
                             errors='ignore'
                         )
                     )
-        except HTTPError:
+        except (HTTPError, URLError, TimeoutError):
             updated = datetime.fromtimestamp(os.path.getmtime(
                 GCP_PREFIX_FORMAT_LIST_PATH
             )).date()
@@ -105,5 +111,4 @@ def prefixes_lengths(local=False):
 
 if __name__ == "__main__":
     import doctest
-
     doctest.testmod()
