@@ -4,7 +4,7 @@ A python package for parsing GTINs ("Global Trade Item Numbers"—also known as 
 See:
 https://github.com/davebelais/gtin
 """
-
+import re
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
@@ -19,12 +19,18 @@ with open(
     ),
     encoding='utf-8'
 ) as f:
-    long_description = f.read()
+    long_description = ''.join(
+        re.split(
+            r'(^\s*To\s*install::\s*$)',
+            f.read(),
+            flags=re.IGNORECASE+re.MULTILINE
+        )[1:]
+    )
 
 setup(
     name='gtin',
 
-    version='0.1.2',
+    version='0.1.4',
 
     description='A module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
     long_description=long_description,
@@ -41,11 +47,10 @@ setup(
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
-        'Development Status :: 3 - Alpha',
-        # 'Development Status :: 4 - Beta',
+        # 'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         # 'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
