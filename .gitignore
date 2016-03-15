@@ -1,0 +1,4 @@
+/.idea
+/docs/_build
+/docs/index.rst
+**/__pycache__
