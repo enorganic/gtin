@@ -22,7 +22,7 @@ __all__ = [
     'prefixes_lengths'
 ]
 
-GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/GCPPrefixFormatList.xml'
+GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/gcpprefixformatlist.xml'
 GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(
     os.path.dirname(
         os.path.abspath(
@@ -110,5 +110,6 @@ def prefixes_lengths(local=False):
 
 
 if __name__ == "__main__":
+    prefixes_lengths()
     import doctest
     doctest.testmod()
