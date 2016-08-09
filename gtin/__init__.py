@@ -193,19 +193,19 @@ class GTIN:
 
     def __init__(
         self,
-        gtin=None,
-        length=None,
-        raw=None,
-        indicator_digit=None,
-        gcp=None,
-        item_reference=None,
-        check_digit=None
+        gtin=None,  # type: Optional[Union[str, Real]] = None
+        length=None,  # type: Optional[Union[Real]] = None
+        raw=None,  # type: Optional[Union[str, Real]] = None
+        indicator_digit=None,  # type: Optional[Union[str, Real]] = None
+        gcp=None,  # type: Optional[str] = None
+        item_reference=None,  # type: Optional[Union[str, Real]] = None
+        check_digit=None  # type: Optional[Union[str, Real]] = None
     ):
         class Data:
-            raw = None
-            length = None
+            raw = None  # type: int
+            length = None  # type: int
 
-        self.data = Data
+        self.data = Data  # type: "Data"
         if gtin is not None:
             if isinstance(gtin, self.__class__):
                 raw = gtin.raw
@@ -326,23 +326,28 @@ class GTIN:
                 )
 
     def __len__(self):
+        # type: () -> int
         return self.length
 
     @property
     def length(self):
+        # type: () -> int
         return self.data.length
 
     @length.setter
     def length(self, l):
+        # type: (int) -> None
         self.__str__.cache_clear()
         self.data.length = abs(int(l))
 
     @property
     def raw(self):
+        # type: () -> int
         return self.data.raw
 
     @raw.setter
     def raw(self, value):
+        # type: (Union[str, Number]) -> None
         self.__str__.cache_clear()
         self.get_check_digit.cache_clear()
         self.get_gcp.cache_clear()
@@ -369,6 +374,7 @@ class GTIN:
 
     @functools.lru_cache(maxsize=None)
     def get_check_digit(self):
+        # type: () -> Optional[str]
         r = self.raw
         if r is None:
             return None
@@ -384,10 +390,12 @@ class GTIN:
 
     @property
     def check_digit(self):
+        # type: () -> Optional[str]
         return self.get_check_digit()
 
     @functools.lru_cache(maxsize=None)
     def get_gcp(self):
+        # type: () -> Optional[str]
         gp_l = gcp_prefixes_lengths()
         prefixes = set(gp_l.keys())
         g = str(self)
@@ -410,28 +418,35 @@ class GTIN:
 
     @property
     def gcp(self):
+        # type: () -> Optional[str]
         return self.get_gcp()
 
     @property
     def indicator_digit(self):
+        # type: () -> Optional[str]
         return str(self)[0]
 
     @property
     def indicator_digit(self):
+        # type: () -> Optional[str]
         return str(self)[0]
 
     @property
     def item_reference(self):
+        # type: () -> Optional[str]
         return str(self)[len(self.gcp) + 1:-1]
 
     def __int__(self):
+        # type: () -> int
         return int(str(self))
 
     def __float__(self):
+        # type: () -> float
         return float(str(self))
 
     @functools.lru_cache(maxsize=None)
     def __str__(self):
+        # type: () -> str
         if self.raw is None:
             return '0' * self.length
         g = str(self.raw) + self.check_digit
@@ -441,9 +456,11 @@ class GTIN:
         )
 
     def __hash__(self):
+        # type: () -> int
         return self.raw or 0
 
     def __repr__(self):
+        # type: () -> str
         return (
             '%s(%s)' % (
                 self.__class__.__name__.split('.')[-1],
@@ -452,6 +469,7 @@ class GTIN:
         )
 
     def __iter__(self):
+        # type: () -> Iterable[str]
         yield self.indicator_digit
         yield self.gcp
         yield self.item_reference

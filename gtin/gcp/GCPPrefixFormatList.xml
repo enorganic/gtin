@@ -1,5 +1,5 @@
 <!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by IT TEAM (GS1 AISBL) -->
-<GCPPrefixFormatList date="2016-03-23T16:55:00Z">
+<GCPPrefixFormatList date="2016-04-12T03:02:00Z">
 	<!-- a list of GS1 prefixes (country prefixes) is available at http://www.gs1.org/company-prefix -->
 	<!-- Explicit EXCLUSIONS:
 	The GCP Length Determination Tool project has defined a number of "Excluded" prefixes which are excluded from the GCP resolution process and have been assigned a nominal length of 0 in this file, as a sentinel value.
@@ -1306,6 +1306,32 @@
 	<entry prefix="4882" gcpLength="8"/>
 	<entry prefix="4883" gcpLength="9"/>
 	<entry prefix="4884" gcpLength="10"/>
+	<!-- 489 GS1 Hong Kong -->
+	<entry prefix="4890" gcpLength="7"/>
+	<entry prefix="4891" gcpLength="7"/>
+	<entry prefix="4892" gcpLength="7"/>
+	<entry prefix="4893" gcpLength="7"/>
+	<entry prefix="4894" gcpLength="7"/>
+	<entry prefix="4895" gcpLength="8"/>
+	<entry prefix="4896" gcpLength="7"/>
+	<entry prefix="4897" gcpLength="9"/>
+	<entry prefix="4898" gcpLength="7"/>
+	<entry prefix="48990" gcpLength="7"/>
+	<entry prefix="48991" gcpLength="7"/>
+	<entry prefix="48992" gcpLength="7"/>
+	<entry prefix="48993" gcpLength="7"/>
+	<entry prefix="48994" gcpLength="7"/>
+	<entry prefix="48995" gcpLength="7"/>
+	<entry prefix="48996" gcpLength="7"/>
+	<entry prefix="48997" gcpLength="7"/>
+	<entry prefix="48998" gcpLength="7"/>
+	<entry prefix="489993" gcpLength="10"/>
+	<entry prefix="4899949" gcpLength="11"/>
+	<entry prefix="4899959" gcpLength="11"/>
+	<entry prefix="489996" gcpLength="9"/>
+	<entry prefix="4899979" gcpLength="11"/>
+	<entry prefix="489998" gcpLength="11"/>
+	<entry prefix="489999" gcpLength="11"/>
 	<!-- 490-499 GS1 Japan -->
 	<entry prefix="49" gcpLength="7"/>
 	<!-- 500-509 GS1 UK -->
@@ -18458,7 +18484,6 @@
 	<entry prefix="88497" gcpLength="9"/>
 	<entry prefix="884998" gcpLength="9"/>
 	<entry prefix="88499999" gcpLength="9"/>
-	<!-- 885 GS1 Thailand -->
 	<!-- 888 GS1 Singapore -->
 	<entry prefix="8882" gcpLength="7"/>
 	<entry prefix="8883" gcpLength="12"/>

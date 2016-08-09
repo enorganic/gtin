@@ -22,8 +22,8 @@ __all__ = [
     'prefixes_lengths'
 ]
 
-GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/gcpprefixformatlist.xml'
-GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(
+GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/gcpprefixformatlist.xml'  # type: str
+GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(  # type: str
     os.path.dirname(
         os.path.abspath(
             __file__
@@ -35,6 +35,7 @@ GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(
 
 @functools.lru_cache(maxsize=1)
 def prefixes_lengths(local=False):
+    # type: (bool) -> Dict
     """
     This function provides a current mapping of GS1 prefixes to the length
     of GTIN Company Prefixes beginning with each prefix. Note: The "prefix"
@@ -47,8 +48,8 @@ def prefixes_lengths(local=False):
         If *True*, a local, cached GCP prefix format list will be used instead of checking for an
         updated copy online.
     """
-    pl = {}
-    gcp_prefix_format_list = None
+    pl = {}  # type: Optional[Dict[str, int]]
+    gcp_prefix_format_list = None  # type: Optional[IO]
     if not local:
         try:
             with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as r:
@@ -66,7 +67,7 @@ def prefixes_lengths(local=False):
         except (HTTPError, URLError, TimeoutError):
             updated = datetime.fromtimestamp(os.path.getmtime(
                 GCP_PREFIX_FORMAT_LIST_PATH
-            )).date()
+            )).date()  # type: date
             warnings.warn(
                 (
                     'The GCP prefix list could not be retrieved from "%(url)s". ' +
@@ -91,10 +92,10 @@ def prefixes_lengths(local=False):
         if local_gcp_prefix_format_list != gcp_prefix_format_list:
             with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='w') as f:
                 f.write(gcp_prefix_format_list)
-    tree = ElementTree.fromstring(
+    tree = ElementTree.fromstring(  # type: Element
         gcp_prefix_format_list
     )
-    for entry in (
+    for entry in (  # type: Element
         e for e in tree
         if (
             ('prefix' in e.attrib) and
