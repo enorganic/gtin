@@ -213,7 +213,13 @@ class GTIN:
             elif isinstance(gtin, (str, bytes)):
                 if isinstance(gtin, bytes):
                     gtin = str(gtin, encoding='utf-8', errors='ignore')
-                gtin = re.sub(r'[^\d]', '', gtin)
+                g = re.sub(r'[^\d]', '', gtin)
+                if g == '':
+                    raise GTINError(
+                        '%s is not a valid GTIN. ' % repr(gtin) +
+                        'A GTIN should contain 1 or more numeric digits.'
+                    )
+                gtin = g
                 if length is None:
                     length = len(gtin)
                     if check_digit is not None:
