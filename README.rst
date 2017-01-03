@@ -21,24 +21,24 @@ This class represents a Global Trade Item Number, and can be used to:
 :gtin:
 
     A string or number representing a GTIN, including the check-digit.
-    
+
     - When the *gtin* parameter is provided, the last (rightmost) digit is used to validate the GTIN if
       no value is provided for the parameter *check_digit*.
-            
+
 :length:
 
     The length of the GTIN.
-    
+
     - If no value is passed for *length*, and *gtin* is a *str*—*length* is inferred based on the character
       length of *gtin*.
     - If no value is passed for *length*, *gtin* is *None*, and *raw* is a *str*—*length* is inferred based
       on the length of *raw* (adding 1, to account for the absent check-digit).
     - If no length is passed, and none can be inferred from *gtin* or *raw*, *length* defaults to 14.
-        
+
 :raw:
 
     A string or number representing the GTIN, excluding the check-digit.
-    
+
     - If a value is provided for the parameter *gtin*, this parameter is not used, but is instead derived
       from *gtin*.
 
@@ -49,22 +49,22 @@ pass the components of the GTIN separately: the indicator digit, GCP (GS1 Compan
 :indicator_digit:
 
     This is the first (leftmost) digit of a GTIN-14.
-    
+
     - "0" indicates a base unit.
     - "1" through "8" are used to define the packaging hierarchy of a product with the same item reference.
     - "9" indicates a variable-measure trade item.
-     
+
 :gcp:
 
     The GS1 Company Prefix is a globally unique identifier assigned to a company by GS1 Member Organizations to
     create the identification numbers of the GS1 System. Company Prefixes, which vary in length, are comprised
     of a GS1 Prefix and a Company Number.
-    
+
 :item_reference:
 
     The item reference is the part of the GTIN that is allocated by the user to identify a trade item for a
     given Company Prefix. The Item Reference varies in length as a function of the Company Prefix length.
-    
+
 :check_digit:
 
     A mod-10 algorithm digit used to check for input errors. To understand how this digit is calculated, refer
