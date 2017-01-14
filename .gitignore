@@ -2,4 +2,3 @@
 /docs/_build
 /docs/index.rst
 **/__pycache__
-/*.yml
