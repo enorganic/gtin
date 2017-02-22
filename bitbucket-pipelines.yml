@@ -1,8 +1,0 @@
-image: python:3.5.1
-
-pipelines:
-  default:
-    - step:
-        script:
-          - git remote add github https://$GITHUB_LOGIN@github.com/davebelais/gtin.git
-          - git push --force --force-with-lease github master
