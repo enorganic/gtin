@@ -1,10 +1,14 @@
 <!-- edited with XMLSpy v2014 sp1 (x64) (http://www.altova.com) by IT TEAM (GS1 AISBL) -->
-<GCPPrefixFormatList date="2016-04-12T03:02:00Z">
+<GCPPrefixFormatList date="2016-12-19T12:34:00Z">
 	<!-- a list of GS1 prefixes (country prefixes) is available at http://www.gs1.org/company-prefix -->
 	<!-- Explicit EXCLUSIONS:
 	The GCP Length Determination Tool project has defined a number of "Excluded" prefixes which are excluded from the GCP resolution process and have been assigned a nominal length of 0 in this file, as a sentinel value.
 	There are currently TEN (10) Excluded prefix ranges:
 	02, 04, 05, 2, 951, 960-969, 977, 978-979, 98, 99 -->
+	<!-- DISCLAIMER
+	THIS DOCUMENT IS PROVIDED “AS IS” WITH NO WARRANTIES WHATSOEVER, INCLUDING ANY WARRANTY OF MERCHANTABILITY, NONINFRINGMENT, FITNESS FOR PARTICULAR PURPOSE, OR ANY WARRANTY 	OTHER WISE ARISING OUT OF THIS DOCUMENT. GS1 disclaims all liability for any damages arising from use or misuse of this document, whether special, indirect, consequential, or compensatory damages, and including liability for infringement of any intellectual property rights, relating to use of information in or reliance upon this document. GS1 retains the right to make changes to this document at any time, without notice. GS1 makes no warranty for the use of this document and assumes no responsibility for any errors which may appear in the document, nor does it make a commitment to update the information contained herein.
+	-->
+	<!-- Copyright (C) GS1 2016. GS1 and the GS1 logo are registered trademarks of GS1 AISBL. -->
 	<!-- 000-019 GS1 US -->
 	<entry prefix="00" gcpLength="7"/>
 	<entry prefix="011" gcpLength="8"/>
@@ -867,10 +871,26 @@
 	<entry prefix="3899" gcpLength="7"/>
 	<!-- 400-440 GS1 Germany -->
 	<entry prefix="40" gcpLength="7"/>
-	<entry prefix="41" gcpLength="7"/>
+	<entry prefix="410" gcpLength="7"/>
+	<entry prefix="411" gcpLength="7"/>
+	<entry prefix="412" gcpLength="7"/>
+	<entry prefix="413" gcpLength="7"/>
+	<entry prefix="416" gcpLength="7"/>
+	<entry prefix="417" gcpLength="7"/>
+	<entry prefix="418" gcpLength="7"/>
+	<entry prefix="420" gcpLength="7"/>
+	<entry prefix="421" gcpLength="7"/>
 	<entry prefix="425" gcpLength="8"/>
 	<entry prefix="426" gcpLength="9"/>
-	<entry prefix="43" gcpLength="7"/>
+	<entry prefix="429" gcpLength="7"/>
+	<entry prefix="430" gcpLength="7"/>
+	<entry prefix="431" gcpLength="7"/>
+	<entry prefix="432" gcpLength="7"/>
+	<entry prefix="433" gcpLength="7"/>
+	<entry prefix="435" gcpLength="7"/>
+	<entry prefix="436" gcpLength="7"/>
+	<entry prefix="437" gcpLength="7"/>
+	<entry prefix="438" gcpLength="7"/>
 	<!-- 450-459 GS1 Japan -->
 	<entry prefix="450" gcpLength="7"/>
 	<entry prefix="451" gcpLength="7"/>
