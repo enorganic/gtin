@@ -1,4 +1,8 @@
 /.idea
+/.tox
+/.cache
+**/.cache
+**/__pycache__
+*.egg-info
 /docs/_build
 /docs/index.rst
-**/__pycache__
