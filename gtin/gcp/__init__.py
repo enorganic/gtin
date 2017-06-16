@@ -77,15 +77,8 @@ def prefixes_lengths(local=False):
                     updated=str(updated)
                 )
             )
-    local_gcp_prefix_format_list = None
-    with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r') as f:
+    with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r', encoding='utf-8', errors='ignore') as f:
         local_gcp_prefix_format_list = f.read()
-        if isinstance(local_gcp_prefix_format_list, bytes):
-            local_gcp_prefix_format_list = str(
-                local_gcp_prefix_format_list,
-                encoding='utf-8',
-                errors='ignore'
-            )
     if gcp_prefix_format_list is None:
         gcp_prefix_format_list = local_gcp_prefix_format_list
     else:
