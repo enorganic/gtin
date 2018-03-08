@@ -5,4 +5,5 @@
 *.egg-info
 /docs/_build
 /docs/index.rst
+/.DS_Store
 **/.DS_Store
