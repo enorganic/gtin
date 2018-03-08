@@ -1,7 +1,6 @@
-/.idea
-/.tox
-/.cache
-**/.cache
+**/.idea/*
+**/.tox/*
+**/.cache/*
 **/__pycache__
 *.egg-info
 /docs/_build
