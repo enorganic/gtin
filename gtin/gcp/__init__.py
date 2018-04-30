@@ -16,11 +16,6 @@ from urllib.request import urlopen
 from datetime import datetime
 from xml.etree import ElementTree
 
-__all__ = [
-    'GCP_PREFIX_FORMAT_LIST_URL',
-    'GCP_PREFIX_FORMAT_LIST_PATH',
-    'prefixes_lengths'
-]
 
 GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/gcpprefixformatlist.xml'  # type: str
 GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(  # type: str

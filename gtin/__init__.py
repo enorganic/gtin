@@ -18,15 +18,6 @@ import functools
 from numbers import Number
 from gtin.gcp import prefixes_lengths as gcp_prefixes_lengths
 
-__all__ = [
-    'GTIN',
-    'GTINError',
-    'GTINTypeError',
-    'CheckDigitError',
-    'IndicatorDigitError',
-    'GCPNotFoundError'
-]
-
 
 class GTINError(Exception):
     pass
