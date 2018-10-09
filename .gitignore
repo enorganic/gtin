@@ -2,8 +2,10 @@
 **/.tox/*
 **/.cache/*
 **/__pycache__
-*.egg-info
 /docs/_build
 /docs/index.rst
 /.DS_Store
 **/.DS_Store
+/build/*
+/dist/*
+**.egg-info/*
