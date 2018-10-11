@@ -17,7 +17,7 @@ from datetime import datetime
 from xml.etree import ElementTree
 
 
-GCP_PREFIX_FORMAT_LIST_URL = 'http://www.gs1.org/docs/gcp_length/gcpprefixformatlist.xml'  # type: str
+GCP_PREFIX_FORMAT_LIST_URL = 'https://www.gs1.org/docs/gcp_length/gcpprefixformatlist.xml'  # type: str
 GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(  # type: str
     os.path.dirname(
         os.path.abspath(
