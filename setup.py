@@ -30,7 +30,7 @@ with open(
 setup(
     name='gtin',
 
-    version="0.1.8",
+    version="0.1.9",
 
     description='A module for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).',
     long_description=long_description,

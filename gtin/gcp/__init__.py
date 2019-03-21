@@ -8,10 +8,9 @@ from future.standard_library import install_aliases
 install_aliases()
 
 import os
-import re
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
-from datetime import datetime
+from datetime import datetime, timedelta
 from xml.etree import ElementTree
 
 
@@ -28,33 +27,48 @@ GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(  # type: str
 
 class GCPPrefixFormatList(object):
     """
-    This class provides static methods for loading, retrieving, and parsing GCP prefix to GCP-length mappings
+    This class provides methods for loading, retrieving, and parsing GCP prefix-to-length mappings
     """
 
     _prefixes_lengths = None
+    _modified = None
 
-    @staticmethod
-    def __getitem__(prefix):
+    @classmethod
+    def __getitem__(cls, prefix):
         # type: (str) -> int
-        if GCPPrefixFormatList._prefixes_lengths is None:
-            GCPPrefixFormatList.load()
-        return GCPPrefixFormatList._prefixes_lengths[prefix]
+        if cls._prefixes_lengths is None:
+            cls.load()
+        return cls._prefixes_lengths[prefix]
 
-    @staticmethod
-    def __contains__(prefix):
+    @classmethod
+    def __contains__(cls, prefix):
         # type: (str) -> int
-        if(GCPPrefixFormatList._prefixes_lengths is None):
-            GCPPrefixFormatList.load()
-        return prefix in GCPPrefixFormatList._prefixes_lengths
+        if(cls._prefixes_lengths is None):
+            cls.load()
+        return prefix in cls._prefixes_lengths
 
-    @staticmethod
-    def load():
+    @classmethod
+    def modified(cls):
+        if cls._modified is None:
+            cls._modified = datetime.fromtimestamp(os.path.getmtime(
+                GCP_PREFIX_FORMAT_LIST_PATH
+            ))
+        return cls._modified
+
+    @classmethod
+    def load(cls):
         # type: (...) -> None
         """
-        Load the GCP prefixes from file
+        Load GCP prefixes XML
         """
-        GCPPrefixFormatList._prefixes_lengths = {}
-        with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r', encoding='utf-8', errors='ignore') as prefix_file:
+
+        # Check for updates every 30 days
+        if cls.modified() < datetime.now() - timedelta(days=30):
+            cls.refresh()
+
+        cls._prefixes_lengths = {}
+
+        with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r') as prefix_file:
             tree = ElementTree.fromstring(  # type: Element
                 prefix_file.read()
             )
@@ -65,44 +79,41 @@ class GCPPrefixFormatList(object):
                     ('gcpLength' in e.attrib)
                 )
             ):
-                GCPPrefixFormatList._prefixes_lengths[
+                cls._prefixes_lengths[
                     entry.attrib['prefix']
                 ] = int(
                     entry.attrib['gcpLength']
                 )
 
-    @staticmethod
-    def refresh():
+    @classmethod
+    def refresh(cls):
         # type: (...) -> None
+        """
+        Retrieve and updated XML mapping
+        """
         try:
             with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as response:
                 data = response.read()
-                if isinstance(data, bytes):
-                    data = re.sub(
-                        r'[\r\n][\r\n]+',
-                        r'\n',
-                        str(
-                            data,
-                            encoding='utf-8',
-                            errors='ignore'
-                        )
+                if not isinstance(data, str):
+                    data = str(
+                        data,
+                        encoding='utf-8',
+                        errors='ignore'
                     )
-        except (HTTPError, URLError, TimeoutError) as error:
-            updated = datetime.fromtimestamp(os.path.getmtime(
-                GCP_PREFIX_FORMAT_LIST_PATH
-            )).date()  # type: date
+        except (HTTPError, URLError, OSError) as error:
             type(error)(
                 (
                     'The GCP prefix list could not be retrieved from "%(url)s". ' +
                     'A cached copy of this file, last updated on %(updated)s, will be used instead.\n\n'
                 ) % dict(
                     url=GCP_PREFIX_FORMAT_LIST_URL,
-                    updated=str(updated)
+                    updated=str(cls.modified().date())
                 ) + str(error)
             )
         if data:
             with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='w') as prefix_file:
                 prefix_file.write(data)
+            cls._modified = datetime.now()
 
 
 GCP_PREFIXES = GCPPrefixFormatList()

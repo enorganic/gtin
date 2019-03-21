@@ -221,6 +221,9 @@ class GTIN:
     @staticmethod
     def _normalize(gtin):
         # type: (Union[str, bytes]) -> str
+        """
+        Strip non-numeric characters from a string
+        """
         if isinstance(gtin, bytes):
             data = str(gtin, encoding='utf-8', errors='ignore')
         gtin = re.sub(r'[^\d]', '', gtin)
