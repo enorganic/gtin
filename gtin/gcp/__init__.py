@@ -8,9 +8,7 @@ from future.standard_library import install_aliases
 install_aliases()
 
 import os
-import functools
 import re
-import warnings
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 from datetime import datetime
@@ -28,77 +26,83 @@ GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(  # type: str
 )
 
 
-@functools.lru_cache(maxsize=1)
-def prefixes_lengths(local=False):
-    # type: (bool) -> Dict
+class GCPPrefixFormatList(object):
     """
-    This function provides a current mapping of GS1 prefixes to the length
-    of GTIN Company Prefixes beginning with each prefix. Note: The "prefix"
-    of a GCP starts at the second digit of a GTIN-14, because the
-    first digit indicates the logistic unit level ("0" indicates a consumer-level
-    unit).
-
-    :param local:
-
-        If *True*, a local, cached GCP prefix format list will be used instead of checking for an
-        updated copy online.
+    This class provides static methods for loading, retrieving, and parsing GCP prefix to GCP-length mappings
     """
-    pl = {}  # type: Optional[Dict[str, int]]
-    gcp_prefix_format_list = None  # type: Optional[IO]
-    if not local:
+
+    _prefixes_lengths = None
+
+    @staticmethod
+    def __getitem__(prefix):
+        # type: (str) -> int
+        if GCPPrefixFormatList._prefixes_lengths is None:
+            GCPPrefixFormatList.load()
+        return GCPPrefixFormatList._prefixes_lengths[prefix]
+
+    @staticmethod
+    def __contains__(prefix):
+        # type: (str) -> int
+        if(GCPPrefixFormatList._prefixes_lengths is None):
+            GCPPrefixFormatList.load()
+        return prefix in GCPPrefixFormatList._prefixes_lengths
+
+    @staticmethod
+    def load():
+        # type: (...) -> None
+        """
+        Load the GCP prefixes from file
+        """
+        GCPPrefixFormatList._prefixes_lengths = {}
+        with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r', encoding='utf-8', errors='ignore') as prefix_file:
+            tree = ElementTree.fromstring(  # type: Element
+                prefix_file.read()
+            )
+            for entry in (  # type: Element
+                e for e in tree
+                if (
+                    ('prefix' in e.attrib) and
+                    ('gcpLength' in e.attrib)
+                )
+            ):
+                GCPPrefixFormatList._prefixes_lengths[
+                    entry.attrib['prefix']
+                ] = int(
+                    entry.attrib['gcpLength']
+                )
+
+    @staticmethod
+    def refresh():
+        # type: (...) -> None
         try:
-            with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as r:
-                gcp_prefix_format_list = r.read()
-                if isinstance(gcp_prefix_format_list, bytes):
-                    gcp_prefix_format_list = re.sub(
+            with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as response:
+                data = response.read()
+                if isinstance(data, bytes):
+                    data = re.sub(
                         r'[\r\n][\r\n]+',
                         r'\n',
                         str(
-                            gcp_prefix_format_list,
+                            data,
                             encoding='utf-8',
                             errors='ignore'
                         )
                     )
-        except (HTTPError, URLError, TimeoutError):
+        except (HTTPError, URLError, TimeoutError) as error:
             updated = datetime.fromtimestamp(os.path.getmtime(
                 GCP_PREFIX_FORMAT_LIST_PATH
             )).date()  # type: date
-            warnings.warn(
+            type(error)(
                 (
                     'The GCP prefix list could not be retrieved from "%(url)s". ' +
-                    'A cached copy of this file, last updated on %(updated)s, will be used instead.'
+                    'A cached copy of this file, last updated on %(updated)s, will be used instead.\n\n'
                 ) % dict(
                     url=GCP_PREFIX_FORMAT_LIST_URL,
                     updated=str(updated)
-                )
+                ) + str(error)
             )
-    with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='r', encoding='utf-8', errors='ignore') as f:
-        local_gcp_prefix_format_list = f.read()
-    if gcp_prefix_format_list is None:
-        gcp_prefix_format_list = local_gcp_prefix_format_list
-    else:
-        if local_gcp_prefix_format_list != gcp_prefix_format_list:
-            with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='w') as f:
-                f.write(gcp_prefix_format_list)
-    tree = ElementTree.fromstring(  # type: Element
-        gcp_prefix_format_list
-    )
-    for entry in (  # type: Element
-        e for e in tree
-        if (
-            ('prefix' in e.attrib) and
-            ('gcpLength' in e.attrib)
-        )
-    ):
-        pl[
-            entry.attrib['prefix']
-        ] = int(
-            entry.attrib['gcpLength']
-        )
-    return pl
+        if data:
+            with open(GCP_PREFIX_FORMAT_LIST_PATH, mode='w') as prefix_file:
+                prefix_file.write(data)
 
 
-if __name__ == "__main__":
-    prefixes_lengths()
-    import doctest
-    doctest.testmod()
+GCP_PREFIXES = GCPPrefixFormatList()

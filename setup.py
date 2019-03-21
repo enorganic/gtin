@@ -15,7 +15,7 @@ d = path.abspath(path.dirname(__file__))
 with open(
     path.join(
         d,
-        'README.rst'
+        'README.md'
     ),
     encoding='utf-8'
 ) as f:
@@ -32,7 +32,7 @@ setup(
 
     version="0.1.8",
 
-    description='A module for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).',
+    description='A module for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).',
     long_description=long_description,
 
     # The project's main homepage.
@@ -69,13 +69,13 @@ setup(
     # dependencies
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        "future>=0.17.0"
+        "future>=0.17.1"
     ],
 
     # pip install -e .[dev,test]
     extras_require={
-        'dev': ['pytest>=2.9.0'],
-        'test': ['pytest>=2.9.0'],
+        'dev': ['pytest>=3.9.3', 'setuptools_setup_versions>=0.0.9'],
+        'test': ['pytest>=3.9.3', 'setuptools_setup_versions>=0.0.9'],
     },
 
     package_data={

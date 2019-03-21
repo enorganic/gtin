@@ -1,9 +1,8 @@
 """
-A library for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
+A library for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).
 
 Author: David Belais <david@belais.me>
 License: MIT
-Documentation: http://gtin.readthedocs.org
 """
 
 # Python 2 compatibility
@@ -14,28 +13,15 @@ from future.utils import python_2_unicode_compatible
 from builtins import int, bytes, str
 
 import re
-import functools
 from numbers import Number
-from gtin.gcp import prefixes_lengths as gcp_prefixes_lengths
+from gtin.gcp import GCP_PREFIXES
 
 
 class GTINError(Exception):
     pass
 
 
-class GTINTypeError(GTINError, TypeError):
-    pass
-
-
 class CheckDigitError(GTINError, ValueError):
-    pass
-
-
-class IndicatorDigitError(GTINError, ValueError):
-    pass
-
-
-class GCPNotFoundError(GTINError, ValueError):
     pass
 
 
@@ -45,7 +31,7 @@ class GTIN:
     gtin
     ====
 
-    A python package for parsing GTINs ("Global Trade Item Numbers"—also known as UPC/EAN/JAN/ISBN).
+    A python package for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).
 
     To install::
 
@@ -73,9 +59,9 @@ class GTIN:
 
         The length of the GTIN.
 
-        - If no value is passed for *length*, and *gtin* is a *str*—*length* is inferred based on the character
+        - If no value is passed for *length*, and *gtin* is a *str*--*length* is inferred based on the character
           length of *gtin*.
-        - If no value is passed for *length*, *gtin* is *None*, and *raw* is a *str*—*length* is inferred based
+        - If no value is passed for *length*, *gtin* is *None*, and *raw* is a *str*--*length* is inferred based
           on the length of *raw* (adding 1, to account for the absent check-digit).
         - If no length is passed, and none can be inferred from *gtin* or *raw*, *length* defaults to 14.
 
@@ -86,7 +72,7 @@ class GTIN:
         - If a value is provided for the parameter *gtin*, this parameter is not used, but is instead derived
           from *gtin*.
 
-    In lieu of passing a complete GTIN, with or without the check-digit, using the above parameters—it is possible to
+    In lieu of passing a complete GTIN, with or without the check-digit, using the above parameters--it is possible to
     pass the components of the GTIN separately: the indicator digit, GCP (GS1 Company Prefix), item reference, and
     (optionally) the check-digit.
 
@@ -116,14 +102,14 @@ class GTIN:
         against the calculated check-digit, and an error is raised if it does not match the calculated check-digit.
 
     Examples
-    ~~~~~~~~
+    ```
 
     >>> from gtin import GTIN
 
     A *GTIN* initialized without any arguments:
 
     >>> print(repr(GTIN()))
-    GTIN('00000000000000')
+    gtin.GTIN('00000000000000')
 
     Typical usage will require converting your *GTIN* to a *str* prior to use in your application.
 
@@ -180,147 +166,70 @@ class GTIN:
 
     >>> print(tuple(GTIN(raw='0400010161360')))
     ('0', '4000101', '61360', '0')
+
+    ```
     """
 
     def __init__(
         self,
-        gtin=None,  # type: Optional[Union[str, Real]] = None
-        length=None,  # type: Optional[Union[Real]] = None
-        raw=None,  # type: Optional[Union[str, Real]] = None
-        indicator_digit=None,  # type: Optional[Union[str, Real]] = None
-        gcp=None,  # type: Optional[str] = None
-        item_reference=None,  # type: Optional[Union[str, Real]] = None
-        check_digit=None  # type: Optional[Union[str, Real]] = None
+        gtin=None,  # type: Optional[Union[str, int]] = None
+        length=None,  # type: Optional[Union[int]] = None
+        raw=None  # type: Optional[Union[str, int]] = None
     ):
-        class Data:
-            raw = None  # type: int
-            length = None  # type: int
+        self._gtin = None  # type: Optional[str]
+        self._gcp = None
+        self._check_digit = None
+        self._raw = None
+        self._length = length
+        self._indicator_digit = None
+        self._item_reference = None
 
-        self.data = Data  # type: "Data"
-        if gtin is not None:
-            if isinstance(gtin, self.__class__):
-                raw = gtin.raw
-                length = len(gtin)
-            elif isinstance(gtin, (str, bytes)):
-                if isinstance(gtin, bytes):
-                    gtin = str(gtin, encoding='utf-8', errors='ignore')
-                g = re.sub(r'[^\d]', '', gtin)
-                if g == '':
-                    raise GTINError(
-                        '%s is not a valid GTIN. ' % repr(gtin) +
-                        'A GTIN should contain 1 or more numeric digits.'
-                    )
-                gtin = g
-                if length is None:
-                    length = len(gtin)
-                    if check_digit is not None:
-                        length += 1
-                if check_digit is None:
-                    raw = int(gtin[:-1])
-                    check_digit = gtin[-1]
+        data = gtin or raw
+
+        if data is not None:
+
+            if isinstance(data, (str, bytes)):
+                data = self._normalize(data)
+                if gtin:
+                    self._raw = int(data[:-1])
+                    if self._length is None:
+                        self._length = len(data)
                 else:
-                    raw = int(gtin)
-            elif isinstance(gtin, Number) or hasattr(gtin, '__int__'):
-                g = str(abs(int(gtin)))
-                check_digit = g[-1]
-                raw = int(g[:-1])
+                    self._raw = int(data)
+                    if self._length is None:
+                        self._length = len(data) + 1
+            elif isinstance(data, int):
+                data = str(abs(int(data)))
+                if gtin:
+                    gtin = data
+                    self._raw = int(data[:-1])
+                else:
+                    self._raw = data
+                if self._length is None:
+                    self._length = 14
             else:
-                raise GTINTypeError('The parameter `gtin` must be a `str` or `int`.')
-        elif raw is not None:
-            if isinstance(raw, (str, bytes)):
-                if isinstance(raw, bytes):
-                    raw = str(raw, encoding='utf-8', errors='ignore')
-                raw = re.sub(r'[^\d]', '', raw)
-                if length is None:
-                    length = len(raw) + 1
-                raw = abs(int(raw))
-            elif isinstance(raw, Number) or hasattr(raw, '__int__'):
-                raw = abs(int(raw))
-            else:
-                raise GTINTypeError('The parameter `raw` must be a `str` or `int`.')
-        elif (
-            (indicator_digit is not None) or
-            (gcp is not None) or
-            (item_reference is not None) or
-            (check_digit is not None)
-        ):
-            if indicator_digit is None:
-                indicator_digit = '0'
-            else:
-                if (
-                        (length is not None) and
-                        (length != 14)
-                ):
-                    raise IndicatorDigitError(
-                        'An indicator digit only applies to GTIN-14.'
-                    )
-                if isinstance(indicator_digit, (str, bytes)):
-                    if isinstance(indicator_digit, bytes):
-                        indicator_digit = str(
-                            indicator_digit,
-                            encoding='utf-8',
-                            errors='ignore'
-                        )
-                    indicator_digit = re.sub(r'[^\d]', '', indicator_digit)
-                elif isinstance(indicator_digit, Number):
-                    indicator_digit = str(abs(int(indicator_digit)))
-                if len(indicator_digit) > 1:
-                    raise IndicatorDigitError(
-                        'The parameter `indicator_digit` must be a one-character `str` comprised of a numeric digit, ' +
-                        'or an integer between 0 and 9.'
-                    )
-            if gcp is not None:
-                if isinstance(gcp, (str, bytes)):
-                    if isinstance(gcp, bytes):
-                        gcp = str(
-                            gcp,
-                            encoding='utf-8',
-                            errors='ignore'
-                        )
-                    gcp = re.sub(r'[^\d]', '', gcp)
-                elif isinstance(gcp, Number):
-                    gcp = str(abs(int(gcp)))
-            if item_reference is not None:
-                if isinstance(item_reference, (str, bytes)):
-                    if isinstance(item_reference, bytes):
-                        item_reference = str(
-                            item_reference,
-                            encoding='utf-8',
-                            errors='ignore'
-                        )
-                    item_reference = re.sub(r'[^\d]', '', item_reference)
-                elif isinstance(item_reference, Number):
-                    item_reference = str(abs(int(item_reference)))
-            if (
-                (gcp is not None) and
-                (item_reference is not None) and
-                len(gcp) + len(item_reference) != 12
-            ):
-                raise GTINTypeError(
-                    'The character length of parameters `gcp` and `item_reference` combined must equal 12.'
+                raise TypeError(
+                    'The `gtin` provided must be a `str` or `int`, not `%s`.' % repr(data)
                 )
-            elif gcp is None:
-                gcp = '0' * (12 - len(item_reference))
-            elif item_reference is None:
-                item_reference = '0' * (12 - len(gcp))
-            raw = int(
-                indicator_digit +
-                gcp +
-                item_reference
+
+        if gtin and self.check_digit != gtin[-1]:
+            raise CheckDigitError(
+                ('This GTIN ("%s") has an invalid check-digit ("%s"). ' % (gtin, gtin[-1])) +
+                ('The correct check-digit would be "%s".' % self.check_digit)
             )
-        else:
-            raw = 0
-        if length is None:
-            length = 14
-        self.length = length
-        self.raw = raw
-        if check_digit is not None:
-            cd = self.check_digit
-            if check_digit != cd:
-                raise CheckDigitError(
-                    ('This GTIN ("%s") has an invalid check-digit ("%s"). ' % (gtin, check_digit)) +
-                    ('The correct check-digit would be "%s".' % cd)
-                )
+
+    @staticmethod
+    def _normalize(gtin):
+        # type: (Union[str, bytes]) -> str
+        if isinstance(gtin, bytes):
+            data = str(gtin, encoding='utf-8', errors='ignore')
+        gtin = re.sub(r'[^\d]', '', gtin)
+        if not gtin:
+            raise GTINError(
+                '%s is not a valid GTIN. ' % repr(gtin) +
+                'A GTIN should contain 1 or more numeric digits.'
+            )
+        return gtin
 
     def __len__(self):
         # type: () -> int
@@ -329,108 +238,87 @@ class GTIN:
     @property
     def length(self):
         # type: () -> int
-        return self.data.length
+        return self._length
 
     @length.setter
-    def length(self, l):
+    def length(self, length):
         # type: (int) -> None
-        self.__str__.cache_clear()
-        self.data.length = abs(int(l))
+        self._gtin = None
+        self._length = length
 
     @property
     def raw(self):
         # type: () -> int
-        return self.data.raw
+        return self._raw
 
     @raw.setter
     def raw(self, value):
         # type: (Union[str, Number]) -> None
-        self.__str__.cache_clear()
-        self.get_check_digit.cache_clear()
-        self.get_gcp.cache_clear()
-        if value is None:
-            self.data.raw = None
-        else:
-            if isinstance(value, (str, bytes)):
-                if isinstance(value, bytes):
-                    value = str(
-                        value,
-                        encoding='utf-8',
-                        errors='ignore'
-                    )
-                value = re.sub(r'[^\d]', '', value)
-                self.length = len(value) + 1
-            self.data.raw = abs(int(value))
-            integer_string = str(self.data.raw)
-            length = len(self)
-            if length <= len(integer_string):
-                raise ValueError(
-                    ('The value %s for raw has too many ' % repr(self.data.raw)) +
-                    ('digits for a GTIN with a length of %s.' % str(length))
-                )
-
-    @functools.lru_cache(maxsize=None)
-    def get_check_digit(self):
-        # type: () -> Optional[str]
-        r = self.raw
-        if r is None:
-            return None
-        digits = tuple(d for d in reversed(str(r)))
-        return str(
-            10 - (
-                (
-                    (sum(int(d) for d in digits[::2]) * 3) +
-                    (sum(int(d) for d in digits[1::2]))
-                ) % 10
-            )
-        )[-1]
+        self.__init__(raw=value, length=self.length)
 
     @property
     def check_digit(self):
         # type: () -> Optional[str]
-        return self.get_check_digit()
-
-    @functools.lru_cache(maxsize=None)
-    def get_gcp(self):
-        # type: () -> Optional[str]
-        gp_l = gcp_prefixes_lengths()
-        prefixes = set(gp_l.keys())
-        g = str(self)
-        if len(g) < 14:
-            g = ('0' * (14 - len(g))) + g
-        p = g[1:-1]
-        l = None
-        while p:
-            if p in prefixes:
-                l = gp_l[p]
-                break
-            else:
-                p = p[:-1]
-        if l is None:
-            raise GCPNotFoundError(
-                'No GCP could be found matching this GTIN: %s' % g
-            )
-        else:
-            return g[1:1 + l] if l else ''
+        if self._check_digit is None:
+            if self.raw is None:
+                return None
+            digits = tuple(d for d in reversed(str(self.raw)))
+            return str(
+                10 - (
+                    (
+                        (sum(int(d) for d in digits[::2]) * 3) +
+                        (sum(int(d) for d in digits[1::2]))
+                    ) % 10
+                )
+            )[-1]
+        return self._check_digit
 
     @property
     def gcp(self):
         # type: () -> Optional[str]
-        return self.get_gcp()
+        """
+        Return the GCP corresponding to this GTIN, or an empty string if no GCP can be identified
+        """
+
+        if self._gcp is None:
+
+            # Get the 14-digit variation of this GTIN
+            gtin = str(self)  # type: str
+            if len(gtin) < 14:
+                gtin = ('0' * (14 - len(gtin))) + gtin
+
+            # Lookup the GCP length for this GTIN's prefix
+            prefix = gtin[1:-1]  # type: str
+            prefix_length = None  #type: Optional[int]
+            while prefix and (prefix_length is None):
+                if prefix in GCP_PREFIXES:
+                    prefix_length = GCP_PREFIXES[prefix]
+                else:
+                    prefix = prefix[:-1]
+
+            return gtin[1:1 + prefix_length] if prefix else ''
+
+        return self._gcp
 
     @property
     def indicator_digit(self):
         # type: () -> Optional[str]
-        return str(self)[0]
-
-    @property
-    def indicator_digit(self):
-        # type: () -> Optional[str]
-        return str(self)[0]
+        """
+        The indicator digit is the first digit of a GTIN-14
+        """
+        return (
+            str(self)[0]
+            if self.length == 14 else
+            ''
+        )
 
     @property
     def item_reference(self):
         # type: () -> Optional[str]
+        """
+        The "item reference" comprises the portion of a GTIN following the GCP (GTIN company prefix), and preceding the
+        check digit.
+        """
         return str(self)[len(self.gcp) + 1:-1]
 
     def __int__(self):
@@ -441,16 +329,17 @@ class GTIN:
         # type: () -> float
         return float(str(self))
 
-    @functools.lru_cache(maxsize=None)
     def __str__(self):
         # type: () -> str
-        if self.raw is None:
-            return '0' * self.length
-        g = str(self.raw) + self.check_digit
-        return (
-            ('0' * (self.length - len(g))) +
-            g
-        )
+        if self._gtin is None:
+            if self.raw is None:
+                return '0' * self.length
+            gtin = str(self.raw) + self.check_digit
+            self._gtin = (
+                ('0' * (self.length - len(gtin))) +
+                gtin
+            )
+        return self._gtin
 
     def __hash__(self):
         # type: () -> int
@@ -459,7 +348,8 @@ class GTIN:
     def __repr__(self):
         # type: () -> str
         return (
-            '%s(%s)' % (
+            '%s.%s(%s)' % (
+                self.__module__,
                 self.__class__.__name__.split('.')[-1],
                 repr(str(self))
             )
