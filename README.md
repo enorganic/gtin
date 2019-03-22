@@ -21,8 +21,7 @@ This class represents a Global Trade Item Number, and can be used to:
 
 - **gtin** (str|int): A string or number representing a GTIN, including the check-digit.
 
-  - When the *gtin* parameter is provided, the last (rightmost) digit is used to validate the GTIN if
-      no value is provided for the parameter *check_digit*.
+  - When the *gtin* parameter is provided, the last (rightmost) digit is used to validate the GTIN.
 
 - **length** (int):
 
@@ -41,11 +40,17 @@ This class represents a Global Trade Item Number, and can be used to:
     - If a value is provided for the parameter *gtin*, this parameter is not used, but is instead derived
       from *gtin*.
 
-In lieu of passing a complete GTIN, with or without the check-digit, using the above parameters, it is possible to
-pass the components of the GTIN separately: the indicator digit, GCP (GS1 Company Prefix), item reference, and
-(optionally) the check-digit.
+An instance of `GTIN` has the following properties:
 
-- **indicator_digit** (str|int):
+- **raw** (int):
+
+    The integer value of the GTIN *without* its check-digit.
+    
+- **length** (int):
+
+    The number of characters the GTIN should contain (*including* the check-digit).
+
+- **indicator_digit** (str):
 
     This is the first (leftmost) digit of a GTIN-14.
 
@@ -53,18 +58,18 @@ pass the components of the GTIN separately: the indicator digit, GCP (GS1 Compan
     - "1" through "8" are used to define the packaging hierarchy of a product with the same item reference.
     - "9" indicates a variable-measure trade item.
 
-- **gcp** (str|int):
+- **gcp** (str):
 
     The GS1 Company Prefix is a globally unique identifier assigned to a company by GS1 Member Organizations to
     create the identification numbers of the GS1 System. Company Prefixes, which vary in length, are comprised
     of a GS1 Prefix and a Company Number.
 
-- **item_reference** (str|int):
+- **item_reference** (str):
 
     The item reference is the part of the GTIN that is allocated by the user to identify a trade item for a
     given Company Prefix. The Item Reference varies in length as a function of the Company Prefix length.
 
-- **check_digit** (str|int):
+- **check_digit** (str):
 
     A mod-10 algorithm digit used to check for input errors. To understand how this digit is calculated, refer
     to: http://www.gs1.org/how-calculate-check-digit-manually. If this parameter is provided, it is matched
