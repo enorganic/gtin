@@ -72,8 +72,10 @@ An instance of `GTIN` has the following properties:
 - **check_digit** (str):
 
     A mod-10 algorithm digit used to check for input errors. To understand how this digit is calculated, refer
-    to: http://www.gs1.org/how-calculate-check-digit-manually. If this parameter is provided, it is matched
-    against the calculated check-digit, and an error is raised if it does not match the calculated check-digit.
+    to: http://www.gs1.org/how-calculate-check-digit-manually. If a `gtin` is provided on initialization, it is matched
+    against the calculated check-digit, and a `CheckDigitError` is raised if it does not match. If a `gtin` is *not*
+    provided, but the `raw` parameter *is*, a check-digit is calculated and appended to `raw` when the instance is case
+    as a `str`.
 
 ## Examples
 
