@@ -40,7 +40,7 @@ setup(
 
     # Author details
     author='David Belais',
-    author_email='davebelais@gmail.com',
+    author_email='david@belais.me',
 
     # Choose your license
     license='MIT',
