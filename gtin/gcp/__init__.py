@@ -4,6 +4,8 @@ to determine the length of a GCP (GS1 Company Prefix).
 """
 
 # Python 2 compatibility
+from warnings import warn
+
 from future.standard_library import install_aliases
 install_aliases()
 
@@ -101,7 +103,7 @@ class GCPPrefixFormatList(object):
                         errors='ignore'
                     )
         except (HTTPError, URLError, OSError) as error:
-            type(error)(
+            warn(
                 (
                     'The GCP prefix list could not be retrieved from "%(url)s". ' +
                     'A cached copy of this file, last updated on %(updated)s, will be used instead.\n\n'

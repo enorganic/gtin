@@ -60,7 +60,6 @@ def test_gcp():
 
 
 if __name__ == '__main__':
-    print(str(GTIN(raw='01234567890')))
     test_check_digit()
     test_str()
     test_gcp()
