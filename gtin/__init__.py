@@ -265,7 +265,7 @@ class GTIN:
         """
         A check-digit is calculated based on the preceding digits by multiplying the sum of every 2nd digit *from right
         to left* by 3, adding that to the sum of all the other digits (1st, 3rd, etc.), modulating the result by 10
-        (finding the remainder after dividing by 10), and subtracting that result *from* 10.
+        (find the remainder after dividing by 10), and subtracting *that* result *from* 10.
         """
         if self._check_digit is None:
             # If no raw digits have been set, we have nothing to compute
@@ -275,11 +275,13 @@ class GTIN:
             digits = tuple(d for d in reversed(str(self.raw)))
             # Do the math
             return str(
-                10 - (
+                10 - (  # From 10 we substract...
                     (
+                        # The sum of every 2nd digit, multiplied by 3
                         (sum(int(d) for d in digits[::2]) * 3) +
+                        # The sum of every 2nd digit, offset by 1
                         (sum(int(d) for d in digits[1::2]))
-                    ) % 10
+                    ) % 10  # Modulo 10 (the remainder after dividing by 10)
                 )
             )[-1]
         return self._check_digit
@@ -290,25 +292,25 @@ class GTIN:
         """
         Return the GCP corresponding to this GTIN, or an empty string if no GCP can be identified
         """
-
+        # If the GCP has previously been calculated, it will have been stored in `self._gcp`, otherwise--we calculate it
+        # now
         if self._gcp is None:
-
-            # Get the 14-digit variation of this GTIN
+            # Get the 14-digit variation of this GTIN, since the GCP is based on the GTIN-14
             gtin = str(self)  # type: str
             if len(gtin) < 14:
                 gtin = ('0' * (14 - len(gtin))) + gtin
-
             # Lookup the GCP length for this GTIN's prefix
             prefix = gtin[1:-1]  # type: str
-            prefix_length = None  #type: Optional[int]
+            prefix_length = None  # type: Optional[int]
+            # Start with the longest potential prefix, then check subsequently shorter prefixes until a match is found
             while prefix and (prefix_length is None):
                 if prefix in GCP_PREFIXES:
                     prefix_length = GCP_PREFIXES[prefix]
                 else:
                     prefix = prefix[:-1]
-
-            return gtin[1:1 + prefix_length] if prefix else ''
-
+            # The GCP starts *after* the indicator digit of a GTIN-14
+            self._gcp = gtin[1:1 + prefix_length] if prefix else ''
+        # Return the cached GCP
         return self._gcp
 
     @property
