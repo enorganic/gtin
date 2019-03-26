@@ -262,10 +262,18 @@ class GTIN:
     @property
     def check_digit(self):
         # type: () -> Optional[str]
+        """
+        A check-digit is calculated based on the preceding digits by multiplying the sum of every 2nd digit *from right
+        to left* by 3, adding that to the sum of all the other digits (1st, 3rd, etc.), modulating the result by 10
+        (finding the remainder after dividing by 10), and subtracting that result *from* 10.
+        """
         if self._check_digit is None:
+            # If no raw digits have been set, we have nothing to compute
             if self.raw is None:
                 return None
+            # Reverse the digits
             digits = tuple(d for d in reversed(str(self.raw)))
+            # Do the math
             return str(
                 10 - (
                     (
