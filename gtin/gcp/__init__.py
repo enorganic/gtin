@@ -29,7 +29,7 @@ GCP_PREFIX_FORMAT_LIST_PATH = os.path.join(  # type: str
 
 class GCPPrefixFormatList(object):
     """
-    This class provides methods for loading, retrieving, and parsing GCP prefix-to-length mappings
+    This class provides class methods for loading, retrieving, and parsing GCP prefix-to-length mappings
     """
 
     _prefixes_lengths = None
@@ -91,7 +91,7 @@ class GCPPrefixFormatList(object):
     def refresh(cls):
         # type: (...) -> None
         """
-        Retrieve and updated XML mapping
+        Retrieve an updated XML mapping. If a proxy or connection issue is detected, a pre-existing prefix list
         """
         try:
             with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as response:
