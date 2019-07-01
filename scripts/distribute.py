@@ -2,12 +2,13 @@
 import os
 from subprocess import getstatusoutput
 
-from setuptools_setup_versions import version, install_requires
+from setuptools_setup_versions import install_requires
 
-package = __file__.split('/')[-2]
+# Change to the package directory
+os.chdir('../')
 
 # Update `setup.py` to require currently installed versions of all packages
-install_requires.update_versions()
+# install_requires.update_versions()
 
 # Build
 status, output = getstatusoutput(
@@ -16,10 +17,14 @@ status, output = getstatusoutput(
     'python3.7 setup.py sdist bdist_wheel upload clean --all'
 )
 
-print(output)
+error = None
 
-# Update the package version if there were not any errors
-if status == 0:
-    version.increment()
+if status:
+    error = OSError(output)
+else:
+    print(output)
 
-exec(open('./clean.py').read())
+exec(open('./scripts/clean.py').read())
+
+if error:
+    raise error
