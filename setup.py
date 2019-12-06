@@ -32,7 +32,10 @@ setup(
 
     version="0.1.12",
 
-    description='A module for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).',
+    description=(
+        'A module for parsing GTINs ("Global Trade Item Numbers"--also '
+        'known as UPC/EAN/JAN/ISBN).'
+    ),
     long_description=long_description,
 
     # The project's main homepage.
