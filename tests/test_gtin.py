@@ -19,25 +19,36 @@ def test_check_digit():
 
 def test_str():
     # 14-digit
-    assert str(GTIN(raw='0123456789012')) == '01234567890128'  # str  - implicit length
-    assert str(GTIN(raw='0123456789012', length=14)) == '01234567890128'  # str - explicit length
-    assert str(GTIN(raw=123456789012)) == '01234567890128'  # int - implicit length
-    assert str(GTIN(raw=123456789012, length=14)) == '01234567890128'  # int - explicit length
+    # str  - implicit length
+    assert str(GTIN(raw='0123456789012')) == '01234567890128'
+    # str - explicit length
+    assert str(GTIN(raw='0123456789012', length=14)) == '01234567890128'
+    # int - implicit length
+    assert str(GTIN(raw=123456789012)) == '01234567890128'
+    # int - explicit length
+    assert str(GTIN(raw=123456789012, length=14)) == '01234567890128'
 
     # 12-digit
-    assert str(GTIN(raw='01234567890')) == '012345678905'  # str - implicit length
-    assert str(GTIN(raw='01234567890', length=12)) == '012345678905'  # str - explicit length
-    assert str(GTIN(raw=1234567890, length=12)) == '012345678905'  # int
+    # str - implicit length
+    assert str(GTIN(raw='01234567890')) == '012345678905'
+    # str - explicit length
+    assert str(GTIN(raw='01234567890', length=12)) == '012345678905'
+    # int
+    assert str(GTIN(raw=1234567890, length=12)) == '012345678905'
 
     # 8-digit
-    assert str(GTIN(raw='0123456')) == '01234565'  # str - implicit length
-    assert str(GTIN(raw='0123456', length=8)) == '01234565'  # str - explicit length
-    assert str(GTIN(raw=123456, length=8)) == '01234565'  # int
+    # str - implicit length
+    assert str(GTIN(raw='0123456')) == '01234565'
+    # str - explicit length
+    assert str(GTIN(raw='0123456', length=8)) == '01234565'
+    # int
+    assert str(GTIN(raw=123456, length=8)) == '01234565'
 
     # Verify that an invalid type throws an error
     error = None
+    # float - implicit length
     try:
-        str(GTIN(raw=123456789012.0)) == '01234567890128'  # float - implicit length
+        str(GTIN(raw=123456789012.0)) == '01234567890128'
     except TypeError as e:
         error = e
     assert isinstance(error, TypeError)
@@ -47,11 +58,12 @@ def test_gcp():
     # GS1 US
     assert GCP_PREFIXES['03321'] == 6
     assert GTIN('00332100000001').gcp == '033210'
-    assert GCP_PREFIXES['081'] == 9
+    assert GCP_PREFIXES['0810000'] == 9
     # Restricted distribution
-    assert GCP_PREFIXES['02'] == 0
+    assert '2' not in GCP_PREFIXES
+    assert '02' not in GCP_PREFIXES
+    # Test restricted distribution GCPs
     assert GTIN('02345678901289').gcp == ''
-    assert GCP_PREFIXES['2'] == 0
     assert GTIN('00234567890129').gcp == ''
     # Test a missing GCP
     assert GTIN('01345678901280').gcp == ''
