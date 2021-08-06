@@ -93,6 +93,8 @@ class GCPPrefixFormatList(object):
         """
         Retrieve an updated XML mapping. If a proxy or connection issue is detected, a pre-existing prefix list
         """
+        data = None
+        
         try:
             with urlopen(GCP_PREFIX_FORMAT_LIST_URL) as response:
                 data = response.read()
