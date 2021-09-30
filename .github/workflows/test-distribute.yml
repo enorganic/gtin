@@ -20,7 +20,7 @@ jobs:
     - name: Install
       run: make
     - name: Tox
-      run: tox -e py
+      run: make test
   distribute:
     needs: test
     runs-on: ubuntu-latest
