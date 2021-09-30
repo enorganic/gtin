@@ -1,10 +1,3 @@
-.PHONY:
-	install
-	clean
-	update-gcp-prefix-format-list
-	distribute
-.DEFAULT_GOAL := install
-
 install:
 	python3 -m venv venv && \
 	venv/bin/pip3 install -r requirements.txt -e .
