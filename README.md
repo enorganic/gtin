@@ -5,11 +5,13 @@ Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 
 ## Installation
 
-To install for general use:
+### Basic Installation
 
 ```shell
 pip3 install gtin
 ```
+
+### Development Installation
 
 To install for development of *this project*:
 
@@ -359,4 +361,6 @@ Get the component parts of a *GTIN* instance as a tuple containing
 
 ## Testing
 
-Just run `tox` in the project directory.
+Assuming you have already followed the
+[Development Installation](#developmentinstallation) instructions, you can
+simply run `make test` in the project directory.
