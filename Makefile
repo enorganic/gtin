@@ -15,6 +15,9 @@ clean:
 update-gcp-prefix-format-list:
 	venv/bin/python3 scripts/update_gcp_prefix_format_list.py
 
+requirements:
+	venv/bin/pip3 freeze --exclude-editable > requirements.txt
+
 distribute:
 	update-gcp-prefix-format-list
 	daves-dev-tools distribute --skip-existing
