@@ -22,7 +22,7 @@ distribute:
 	update-gcp-prefix-format-list
 	daves-dev-tools distribute --skip-existing
 
-test;
+test:
 	venv/bin/tox -e py
 
 
