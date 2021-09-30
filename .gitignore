@@ -17,5 +17,3 @@ pip-wheel-metadata
 !.github
 !.gitignore
 !.flake8
-!.tox
-!.python-version
