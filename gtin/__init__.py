@@ -1,381 +1,377 @@
-"""
-A library for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).
-
-Author: David Belais <david@belais.me>
-License: MIT
-"""
-
-# Python 2 compatibility
-from __future__ import division
-from future.standard_library import install_aliases
-install_aliases()
-from future.utils import python_2_unicode_compatible
-from builtins import int, bytes, str
-
 import re
-from numbers import Number
-from gtin.gcp import GCP_PREFIXES
+import os
+import functools
+
+from xml.etree.ElementTree import XML, Element
+from urllib.parse import urljoin
+from typing import (
+    Union,
+    Pattern,
+    Callable,
+    Any,
+    Type,
+    Tuple,
+    Iterator,
+    Dict,
+    IO,
+    List,
+)
+
+__all__: List[str] = [
+    "read_gcp_prefix_format_list",
+    "GTINError",
+    "CheckDigitError",
+    "calculate_check_digit",
+    "append_check_digit",
+    "has_valid_check_digit",
+    "validate_check_digit",
+    "get_gcp",
+    "GTIN",
+]
+
+_NON_NUMERIC_CHARACTERS_PATTERN: Pattern = re.compile(r"[^\d]")
+_GCP_PREFIX_FORMAT_LIST_PATH: str = urljoin(
+    os.path.abspath(__file__), "./GCPPrefixFormatList.xml"
+)
+
+lru_cache: Callable[..., Any] = functools.lru_cache
+
+
+def _remove_non_numeric_characters(gtin: str) -> str:
+    """
+    Strip non-numeric characters from a string
+    """
+    return _NON_NUMERIC_CHARACTERS_PATTERN.sub("", gtin)
+
+
+def _prefix_length_element_filter(element: Element) -> bool:
+    return ("prefix" in element.attrib) and ("gcpLength" in element.attrib)
+
+
+def read_gcp_prefix_format_list() -> Element:
+    file_io: IO[str]
+    with open(_GCP_PREFIX_FORMAT_LIST_PATH) as file_io:
+        return XML(file_io.read())
+
+
+@lru_cache()
+def _get_prefixes_gcp_lengths() -> Dict[str, int]:
+    """
+    This function obtains a dictionary mapping GTIN prefixes to integers
+    indicating the character length for GCPs which begin with each prefix.
+    """
+    prefixes_gcp_lengths: Dict[str, int] = {}
+    root: Element = read_gcp_prefix_format_list()
+    element: Element
+    for element in filter(_prefix_length_element_filter, root):
+        prefixes_gcp_lengths[element.attrib["prefix"]] = int(
+            element.attrib["gcpLength"]
+        )
+    return prefixes_gcp_lengths
 
 
 class GTINError(Exception):
-    pass
+    def __init__(self, gtin: str, message: str) -> None:
+        self.gtin: str = gtin
+        super().__init__(message)
 
 
 class CheckDigitError(GTINError, ValueError):
-    pass
+    def __init__(self, invalid_gtin: str, correct_check_digit: str) -> None:
+        super().__init__(
+            gtin=invalid_gtin,
+            message=(
+                f'"{invalid_gtin}" is not a valid GTIN, the last digit is '
+                f'"{invalid_gtin[-1]}", whereas the correct check-digit '
+                f'would be "{correct_check_digit}".'
+            ),
+        )
 
 
-@python_2_unicode_compatible
+def calculate_check_digit(unchecked_gtin: Union[str, int]) -> Union[str, int]:
+    """
+    The function calculates a check-digit from a raw GTIN. The type of
+    return value reflects the type of the `unchecked_gtin` argument provided
+    (either an `int` or `str`).
+
+    Implementation Details:
+
+    A check-digit is calculated from the preceding digits by
+    multiplying the sum of every 2nd digit *from right to left* by 3,
+    adding that to the sum of all the other digits (1st, 3rd, etc.),
+    modulating the result by 10 (find the remainder after dividing by 10),
+    and subtracting *that* result *from* 10.
+    """
+    assert isinstance(unchecked_gtin, (str, int))
+    type_: Union[Type[str], Type[int]] = type(unchecked_gtin)
+    # Remove non-numeric characters
+    if isinstance(unchecked_gtin, str):
+        unchecked_gtin = _remove_non_numeric_characters(unchecked_gtin)
+    # Reverse the digits
+    digits: Tuple[str, ...] = tuple(d for d in reversed(str(unchecked_gtin)))
+    # Do the math
+    return type_(
+        str(
+            10
+            - (  # From 10 we substract...
+                (
+                    # The sum of every 2nd digit, multiplied by 3
+                    (sum(int(d) for d in digits[::2]) * 3)
+                    +
+                    # The sum of every 2nd digit, offset by 1
+                    (sum(int(d) for d in digits[1::2]))
+                )
+                % 10  # Modulo 10 (the remainder after dividing by 10)
+            )
+        )[-1]
+    )
+
+
+def append_check_digit(unchecked_gtin: Union[str, int]) -> Union[str, int]:
+    """
+    This function accepts a GTIN sans-check-digit and returns the same
+    GTIN *with* its check-digit.
+    """
+    type_: Union[Type[str], Type[int]] = type(unchecked_gtin)
+    assert issubclass(type_, (str, int))
+    return type_(
+        f"{str(unchecked_gtin)}{str(calculate_check_digit(unchecked_gtin))}"
+    )
+
+
+def has_valid_check_digit(gtin: Union[int, str]) -> bool:
+    """
+    Provided a GTIN (of any length, as either a `str` or `int`), determine
+    if the check digit is valid.
+    """
+    gtin = str(gtin)
+    return gtin[-1] == calculate_check_digit(gtin[:-1])
+
+
+def validate_check_digit(gtin: Union[int, str]) -> None:
+    """
+    If the provided `gtin` does not have a valid check-digit, this
+    function raises an error.
+    """
+    gtin = str(gtin)
+    check_digit: str = calculate_check_digit(gtin[:-1])  # type: ignore
+    if gtin[-1] != check_digit:
+        raise CheckDigitError(gtin, check_digit)
+
+
+def _lookup_gcp_length(prefix: str) -> int:
+    """
+    Recursively lookup shorter prefixes until a GCP length for that
+    prefix is identified
+    """
+    if prefix == "":
+        return 0
+    return _get_prefixes_gcp_lengths().get(
+        prefix, _lookup_gcp_length(prefix[:-1])
+    )
+
+
+def get_gcp(gtin: Union[int, str]) -> str:
+    """
+    This function returns the company prefix for the provided GTIN.
+
+    GCP Information: https://www.gs1.org/standards/id-keys/company-prefix
+    """
+    # Get the 14-digit variation of this GTIN, since the GCP is based on the
+    # GTIN-14
+    gtin = str(gtin)
+    length: int = len(gtin)
+    if length < 14:
+        leading_zeros: str = "0" * (14 - length)
+        gtin = f"{leading_zeros}{gtin}"
+    # Lookup the GCP length for this GTIN's prefix, then add `1` to come up
+    # with the value for the `stop` argument for the prefix slice
+    stop: int = _lookup_gcp_length(gtin[1:-1]) + 1
+    # The value for `start` is `1` because the GCP starts *after* the indicator
+    # digit of a GTIN-14
+    return gtin[1:stop]
+
+
+def _validate_gtin_arguments(
+    gtin: Union[str, int] = "", length: int = 0, raw: Union[str, int] = ""
+) -> None:
+    if not isinstance(gtin, (str, int)):
+        raise TypeError(
+            "The `gtin` parameter must receive an `int` or `str`, not "
+            f"{repr(gtin)}"
+        )
+    if not isinstance(length, int):
+        raise TypeError(
+            f"The `length` parameter must receive an `int`, not {repr(gtin)}"
+        )
+    if not isinstance(raw, (str, int)):
+        raise TypeError(
+            "The `raw` parameter must receive an `int` or `str`, not "
+            f"{repr(raw)}"
+        )
+    if not (gtin == "" or raw == ""):
+        raise ValueError(
+            "Either a `gtin` or a `raw` argument may be provided, but not both"
+        )
+
+
+def _harmonize_gtin_arguments(
+    gtin: Union[str, int] = "", length: int = 0, raw: Union[str, int] = ""
+) -> Tuple[str, int, str]:
+    if isinstance(gtin, str):
+        if gtin != "":
+            gtin = _remove_non_numeric_characters(gtin)
+            if not length:
+                length = len(gtin)
+    else:
+        gtin = str(gtin)
+    if isinstance(raw, str):
+        if raw != "":
+            raw = _remove_non_numeric_characters(raw)
+            if not length:
+                length = len(raw) + 1
+    else:
+        raw = str(raw)
+    # If a length isn't provided and can't be inferred, assume it's a GTIN-14
+    if not length:
+        length = 14
+    # Get the raw GTIN from the complete GTIN, if the latter was provided
+    if gtin and not raw:
+        raw = gtin[:-1]
+    # Add leading zeros, if needed
+    text_length: int = len(raw) + 1
+    if text_length < length:
+        leading_zeros: str = "0" * (length - text_length)
+        raw = f"{leading_zeros}{raw}"
+    return gtin, length, raw
+
+
+@lru_cache(typed=True)
+def _parse_gtin(
+    gtin: Union[str, int] = "", raw: Union[str, int] = "", length: int = 0
+) -> Tuple[str, str, str, str, int]:
+    """
+    This function is used to parse arguments for a `GTIN`, when the object is
+    being created by a user (as opposed to being un-pickled).
+    """
+    _validate_gtin_arguments(gtin=gtin, length=length, raw=raw)
+    gtin, length, raw = _harmonize_gtin_arguments(
+        gtin=gtin, length=length, raw=raw
+    )
+    # Calculate the check-digit, either to complete or validate the GTIN
+    check_digit: str = calculate_check_digit(raw)  # type: ignore
+    # If a `gtin` was provided, the calculated `check_digit` should match
+    if gtin and check_digit != gtin[-1]:
+        raise CheckDigitError(gtin, check_digit)
+    gtin = f"{raw}{check_digit}"
+    gcp: str = get_gcp(gtin)
+    indicator_digit: str = gtin[-14] if length > 13 else "0"
+    item_reference_start: int = len(gcp) - 13
+    item_reference: str = gtin[item_reference_start:-1]
+    return indicator_digit, gcp, item_reference, check_digit, length
+
+
 class GTIN:
     """
-    gtin
-    ====
+    This class represents a Global Trade Item Number, an identifier which can
+    be used to:
 
-    A python package for parsing GTINs ("Global Trade Item Numbers"--also known as UPC/EAN/JAN/ISBN).
-
-    To install::
-
-    $ pip install gtin
-
-    gtin.GTIN
-    ---------
-
-    This class represents a Global Trade Item Number, and can be used to:
-
-    - Identify a trade item's GCP (GS1 Company Prefix), Item Reference, and Indicator Digit.
-    - Validate a GTIN's check-digit.
-    - Calculate a check-digit from a raw GTIN.
-
-    **Parameters**:
-
-    :gtin:
-
-        A string or number representing a GTIN, including the check-digit.
-
-        - When the *gtin* parameter is provided, the last (rightmost) digit is used to validate the GTIN if
-          no value is provided for the parameter *check_digit*.
-
-    :length:
-
-        The length of the GTIN.
-
-        - If no value is passed for *length*, and *gtin* is a *str*--*length* is inferred based on the character
-          length of *gtin*.
-        - If no value is passed for *length*, *gtin* is *None*, and *raw* is a *str*--*length* is inferred based
-          on the length of *raw* (adding 1, to account for the absent check-digit).
-        - If no length is passed, and none can be inferred from *gtin* or *raw*, *length* defaults to 14.
-
-    :raw:
-
-        A string or number representing the GTIN, excluding the check-digit.
-
-        - If a value is provided for the parameter *gtin*, this parameter is not used, but is instead derived
-          from *gtin*.
-
-    In lieu of passing a complete GTIN, with or without the check-digit, using the above parameters--it is possible to
-    pass the components of the GTIN separately: the indicator digit, GCP (GS1 Company Prefix), item reference, and
-    (optionally) the check-digit.
-
-    :indicator_digit:
-
-        This is the first (leftmost) digit of a GTIN-14.
-
-        - "0" indicates a base unit.
-        - "1" through "8" are used to define the packaging hierarchy of a product with the same item reference.
-        - "9" indicates a variable-measure trade item.
-
-    :gcp:
-
-        The GS1 Company Prefix is a globally unique identifier assigned to a company by GS1 Member Organizations to
-        create the identification numbers of the GS1 System. Company Prefixes, which vary in length, are comprised
-        of a GS1 Prefix and a Company Number.
-
-    :item_reference:
-
-        The item reference is the part of the GTIN that is allocated by the user to identify a trade item for a
-        given Company Prefix. The Item Reference varies in length as a function of the Company Prefix length.
-
-    :check_digit:
-
-        A mod-10 algorithm digit used to check for input errors. To understand how this digit is calculated, refer
-        to: http://www.gs1.org/how-calculate-check-digit-manually. If this parameter is provided, it is matched
-        against the calculated check-digit, and an error is raised if it does not match the calculated check-digit.
-
-    Examples
-    ```
-
-    >>> from gtin import GTIN
-
-    A *GTIN* initialized without any arguments:
-
-    >>> print(repr(GTIN()))
-    gtin.GTIN('00000000000000')
-
-    Typical usage will require converting your *GTIN* to a *str* prior to use in your application.
-
-    >>> print(str(GTIN()))
-    00000000000000
-
-    Given a raw GTIN, the check-digit is calculated and appended.
-
-    >>> print(str(GTIN(raw='0978289450809')))
-    09782894508091
-
-    Given a valid GTIN *str* for *gtin*, the return value of *str(GTIN(gtin))* is equal to *gtin*.
-
-    >>> print(str(GTIN('04000101613600')))
-    04000101613600
-
-    Non-numeric characters are ignored/discarded.
-
-    >>> print(str(GTIN('0-4000101-61360-0')))
-    04000101613600
-
-    Given a an *int* for the parameter *raw*, the length defaults to 14.
-
-    >>> print(str(GTIN(raw=7447010150)))
-    00074470101505
-
-    >>> print(str(GTIN(74470101505)))
-    00074470101505
-
-    Given a GTIN, and a length:
-
-    >>> print(str(GTIN(raw=7447010150, length=12)))
-    074470101505
-
-    >>> print(str(GTIN(74470101505, length=12)))
-    074470101505
-
-    >>> print(str(GTIN('74470101505', length=14)))
-    00074470101505
-
-    Get the GCP of a GTIN:
-
-    >>> print(GTIN('00041333704647').gcp)
-    0041333
-
-    >>> print(GTIN('00811068011972').gcp)
-    081106801
-
-    >>> print(GTIN('00188781000171').gcp)
-    0188781000
-
-    Get the component parts of a *GTIN* instance as a tuple containing
-    *GTIN.indicator_digit*, *GTIN.gcp*, *GTIN.item_reference*, and *GTIN.check_digit*:
-
-    >>> print(tuple(GTIN(raw='0400010161360')))
-    ('0', '4000101', '61360', '0')
-
-    ```
+    - Identify a trade item's GCP (GS1 Company Prefix), Item Reference, and
+      Indicator Digit
+    - Validate a GTIN's check-digit
+    - Calculate a check-digit from a raw GTIN
     """
+
+    __slots__: Tuple[str, ...] = (
+        "indicator_digit",
+        "gcp",
+        "item_reference",
+        "check_digit",
+        "length",
+    )
 
     def __init__(
         self,
-        gtin=None,  # type: Optional[Union[str, int]] = None
-        length=None,  # type: Optional[Union[int]] = None
-        raw=None  # type: Optional[Union[str, int]] = None
-    ):
-        self._gtin = None  # type: Optional[str]
-        self._gcp = None
-        self._check_digit = None
-        self._raw = None
-        self._length = length
-        self._indicator_digit = None
-        self._item_reference = None
-
-        data = gtin or raw
-
-        if data is not None:
-
-            if isinstance(data, (str, bytes)):
-                data = self._normalize(data)
-                if gtin:
-                    self._raw = int(data[:-1])
-                    if self._length is None:
-                        self._length = len(data)
-                else:
-                    self._raw = int(data)
-                    if self._length is None:
-                        self._length = len(data) + 1
-            elif isinstance(data, int):
-                data = str(abs(int(data)))
-                if gtin:
-                    gtin = data
-                    self._raw = int(data[:-1])
-                else:
-                    self._raw = data
-                if self._length is None:
-                    self._length = 14
-            else:
-                raise TypeError(
-                    'The `gtin` provided must be a `str` or `int`, not `%s`.' % repr(data)
-                )
-
-        if gtin and self.check_digit != gtin[-1]:
-            raise CheckDigitError(
-                ('This GTIN ("%s") has an invalid check-digit ("%s"). ' % (gtin, gtin[-1])) +
-                ('The correct check-digit would be "%s".' % self.check_digit)
-            )
-
-    @staticmethod
-    def _normalize(gtin):
-        # type: (Union[str, bytes]) -> str
+        gtin: Union[str, int] = "",
+        length: int = 0,
+        raw: Union[str, int] = "",
+        # These private parameters should only be used when
+        # pickling/un-pickling a GTIN
+        _indicator_digit: str = "",
+        _gcp: str = "",
+        _item_reference: str = "",
+        _check_digit: str = "",
+    ) -> None:
         """
-        Strip non-numeric characters from a string
-        """
-        if isinstance(gtin, bytes):
-            data = str(gtin, encoding='utf-8', errors='ignore')
-        gtin = re.sub(r'[^\d]', '', gtin)
-        if not gtin:
-            raise GTINError(
-                '%s is not a valid GTIN. ' % repr(gtin) +
-                'A GTIN should contain 1 or more numeric digits.'
-            )
-        return gtin
+        Parameters:
 
-    def __len__(self):
-        # type: () -> int
+        - gtin (str|int|float): A GTIN *with* a check-digit
+        - length (int): The number of digits represented by the GTIN
+          (this overrides the inferred length if greater than zero)
+        - raw (str|int): A GTIN *without* a check-digit
+        """
+        if not (
+            _indicator_digit
+            and _gcp
+            and _item_reference
+            and _check_digit
+            and length
+        ):
+            (
+                _indicator_digit,
+                _gcp,
+                _item_reference,
+                _check_digit,
+                length,
+            ) = _parse_gtin(gtin=gtin, length=length, raw=raw)
+        self.indicator_digit: str = _indicator_digit
+        self.gcp: str = _gcp
+        self.item_reference: str = _item_reference
+        self.check_digit: str = _check_digit
+        self.length: int = length
+
+    def __reduce__(
+        self,
+    ) -> Tuple[Type["GTIN"], Tuple[str, int, str, str, str, str, str]]:
+        return self.__class__, (
+            "",
+            self.length,
+            "",
+            self.indicator_digit,
+            self.gcp,
+            self.item_reference,
+            self.check_digit,
+        )
+
+    def __len__(self) -> int:
         return self.length
 
-    @property
-    def length(self):
-        # type: () -> int
-        return self._length
-
-    @length.setter
-    def length(self, length):
-        # type: (int) -> None
-        self._gtin = None
-        self._length = length
-
-    @property
-    def raw(self):
-        # type: () -> int
-        return self._raw
-
-    @raw.setter
-    def raw(self, value):
-        # type: (Union[str, Number]) -> None
-        self.__init__(raw=value, length=self.length)
-
-    @property
-    def check_digit(self):
-        # type: () -> Optional[str]
-        """
-        A check-digit is calculated based on the preceding digits by multiplying the sum of every 2nd digit *from right
-        to left* by 3, adding that to the sum of all the other digits (1st, 3rd, etc.), modulating the result by 10
-        (find the remainder after dividing by 10), and subtracting *that* result *from* 10.
-        """
-        if self._check_digit is None:
-            # If no raw digits have been set, we have nothing to compute
-            if self.raw is None:
-                return None
-            # Reverse the digits
-            digits = tuple(d for d in reversed(str(self.raw)))
-            # Do the math
-            return str(
-                10 - (  # From 10 we substract...
-                    (
-                        # The sum of every 2nd digit, multiplied by 3
-                        (sum(int(d) for d in digits[::2]) * 3) +
-                        # The sum of every 2nd digit, offset by 1
-                        (sum(int(d) for d in digits[1::2]))
-                    ) % 10  # Modulo 10 (the remainder after dividing by 10)
-                )
-            )[-1]
-        return self._check_digit
-
-    @property
-    def gcp(self):
-        # type: () -> Optional[str]
-        """
-        Return the GCP corresponding to this GTIN, or an empty string if no GCP can be identified
-        """
-        # If the GCP has previously been calculated, it will have been stored in `self._gcp`, otherwise--we calculate it
-        # now
-        if self._gcp is None:
-            # Get the 14-digit variation of this GTIN, since the GCP is based on the GTIN-14
-            gtin = str(self)  # type: str
-            if len(gtin) < 14:
-                gtin = ('0' * (14 - len(gtin))) + gtin
-            # Lookup the GCP length for this GTIN's prefix
-            prefix = gtin[1:-1]  # type: str
-            prefix_length = None  # type: Optional[int]
-            # Start with the longest potential prefix, then check subsequently shorter prefixes until a match is found
-            while prefix and (prefix_length is None):
-                if prefix in GCP_PREFIXES:
-                    prefix_length = GCP_PREFIXES[prefix]
-                else:
-                    prefix = prefix[:-1]
-            # The GCP starts *after* the indicator digit of a GTIN-14
-            self._gcp = gtin[1:1 + prefix_length] if prefix else ''
-        # Return the cached GCP
-        return self._gcp
-
-    @property
-    def indicator_digit(self):
-        # type: () -> Optional[str]
-        """
-        The indicator digit is the first digit of a GTIN-14
-        """
-        return (
-            str(self)[0]
-            if self.length == 14 else
-            ''
-        )
-
-    @property
-    def item_reference(self):
-        # type: () -> Optional[str]
-        """
-        The "item reference" comprises the portion of a GTIN following the GCP (GTIN company prefix), and preceding the
-        check digit.
-        """
-        return str(self)[len(self.gcp) + 1:-1]
-
-    def __int__(self):
-        # type: () -> int
+    def __int__(self) -> int:
         return int(str(self))
 
-    def __float__(self):
-        # type: () -> float
+    def __float__(self) -> float:
         return float(str(self))
 
-    def __str__(self):
-        # type: () -> str
-        if self._gtin is None:
-            if self.raw is None:
-                return '0' * self.length
-            gtin = str(self.raw) + self.check_digit
-            self._gtin = (
-                ('0' * (self.length - len(gtin))) +
-                gtin
-            )
-        return self._gtin
-
-    def __hash__(self):
-        # type: () -> int
-        return self.raw or 0
-
-    def __repr__(self):
-        # type: () -> str
-        return (
-            '%s.%s(%s)' % (
-                self.__module__,
-                self.__class__.__name__.split('.')[-1],
-                repr(str(self))
+    def __iter__(self) -> Iterator[str]:
+        return iter(
+            (
+                self.indicator_digit,
+                self.gcp,
+                self.item_reference,
+                self.check_digit,
             )
         )
 
-    def __iter__(self):
-        # type: () -> Iterable[str]
-        yield self.indicator_digit
-        yield self.gcp
-        yield self.item_reference
-        yield self.check_digit
+    def __str__(self) -> str:
+        start: int = -self.length
+        return "".join(self)[start:]
 
+    def __hash__(self) -> int:
+        return int(str(self)) + 100000000000000 * self.length
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+    def __repr__(self) -> str:
+        return (
+            f"{self.__module__}."
+            f"{self.__class__.__name__}"
+            f'("{str(self)}")'
+        )
