@@ -13,7 +13,7 @@ requirements:
 
 distribute:
 	venv/bin/python3 scripts/update_gcp_prefix_format_list.py
-	daves-dev-tools distribute --skip-existing
+	venv/bin/daves-dev-tools distribute --skip-existing
 
 test:
 	venv/bin/tox -e py
