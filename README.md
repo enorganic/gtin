@@ -26,6 +26,9 @@ source venv/bin/activate
 
 This package can be used as a CLI (command-line-interface) or library.
 
+Please see the [Notes Concerning GCP](#notesconcerninggcp) if calculating
+a correct GCP is important to your usage.
+
 ### CLI
 
 #### gtin ccd | gtin calculate-check-digit
@@ -359,3 +362,21 @@ Get the component parts of a *GTIN* instance as a tuple containing
 Assuming you have already followed the
 [Development Installation](#developmentinstallation) instructions, you can
 simply run `make test` in the project directory.
+
+
+## Notes Concerning GCP
+
+If inferring a correct GCP (GS1 Company Prefix) is important for your usage,
+you should update this package periodically:
+
+```shell
+pip3 install --upgrade gtin
+```
+
+Why? Because GCP allocation is subject to change. When the
+GS1 (the organization which governs GCP allocation) publishes a new _GCP
+Prefix Format List_ (an XML document specifying GCP lengths according to
+variable-length prefix blocks), a new distribution of this package is
+automatically packaged and distributed to [pypi.org](https://pypi.org) _with_
+the new _GCP Prefix Format List_. If you have the most recent version of this package, you will be calculating GCPs based on the most recent _GCP Prefix
+Format List_.
