@@ -181,7 +181,7 @@ This function accepts a GTIN *with* check-digit and raises a
 >>> validate_check_digit("02345678901281")
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-  File "/Users/DBelai/Code/gtin/gtin/__init__.py", line 159, in validate_check_digit
+  File "/Users/David/Code/gtin/gtin/__init__.py", line 159, in validate_check_digit
     raise CheckDigitError(gtin, check_digit)
 gtin.CheckDigitError: "02345678901281" is not a valid GTIN, the last digit is "1", whereas the correct check-digit would be "9".
 ```
