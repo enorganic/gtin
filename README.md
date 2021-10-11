@@ -16,7 +16,7 @@ pip3 install gtin
 To install for development of *this project*:
 
 ```shell
-git clone https://github.com/davebelais/gtin.git && \
+git clone https://github.com/enorganic/gtin.git && \
 cd gtin && \
 make && \
 source venv/bin/activate
