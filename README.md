@@ -26,7 +26,7 @@ source venv/bin/activate
 
 This package can be used as a CLI (command-line-interface) or library.
 
-Please see the [Notes Concerning GCP](#notesconcerninggcp) if calculating
+Please see the [Notes Concerning GCP](#notes-concerning-gcp) if calculating
 a correct GCP is important to your usage.
 
 ### CLI
