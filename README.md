@@ -110,32 +110,17 @@ optional arguments:
 
 #### gtin.calculate_check_digit
 
-This function calculates and returns a check-digit for the provided GTIN.
-
-Note: If the provided `unchecked_gtin` is a `str`, the returned value is a
-`str`. If the provided `unchecked_gtin` is an `int`, the returned value is an
-`int`.
-
-Parameters:
-
-- unchecked_gtin (str|int): A GTIN *without* check-digit
-
-#### gtin.append_check_digit
-
-This function calculates a check-digit and returns the provided
-GTIN *with* the check-digit appended.
-
-Note: If the provided `unchecked_gtin` is a `str`, the returned value is a
-`str`. If the provided `unchecked_gtin` is an `int`, the returned value is an
-`int`.
-
-Parameters:
-
-- unchecked_gtin (str|int): A GTIN *without* check-digit
-
-#### gtin.calculate_check_digit
-
 This function accepts a GTIN *without* check-digit and returns the check-digit.
+
+Parameters:
+
+- unchecked_gtin (str|int): A GTIN *without* check-digit
+
+Note: If the provided `unchecked_gtin` is a `str`, the returned value is a
+`str`. If the provided `unchecked_gtin` is an `int`, the returned value is an
+`int`.
+
+Example:
 
 ```python
 >>> from gtin import calculate_check_digit
@@ -149,6 +134,16 @@ This function accepts a GTIN *without* check-digit and returns the check-digit.
 
 This function accepts a GTIN *without* check-digit and returns the same
 GTIN with a check-digit appended.
+
+Note: If the provided `unchecked_gtin` is a `str`, the returned value is a
+`str`. If the provided `unchecked_gtin` is an `int`, the returned value is an
+`int`.
+
+Parameters:
+
+- unchecked_gtin (str|int): A GTIN *without* check-digit
+
+Example:
 
 ```python
 >>> from gtin import append_check_digit
