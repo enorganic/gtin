@@ -5,7 +5,22 @@ on:
       - master
   schedule:
     - cron: '0 0 * * *'
-jobs:  
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.9]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install
+      run: make
+    - name: Tox
+      run: venv/bin/tox  -p all -e py39-black -e py39-flake8 -e py39-mypy -e py39-pytest
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -20,9 +35,11 @@ jobs:
     - name: Install
       run: make
     - name: Tox
-      run: make test
+      run: venv/bin/tox -e py-pytest -p all
   distribute:
-    needs: test
+    needs:
+      - test
+      - lint-and-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -36,5 +53,5 @@ jobs:
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: make distribute
+      run: venv/bin/daves-dev-tools distribute --skip-existing
 

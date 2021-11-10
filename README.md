@@ -86,7 +86,7 @@ usage: gtin has-valid-check-digit [-h] GTIN
        gtin hvcd [-h] GTIN
 
 If the provided GTIN is *valid*, this command will return "YES". If the
-provided GTIN is *valid*, this command will return "NO".
+provided GTIN is *invalid*, this command will return "NO".
 
 positional arguments:
   GTIN        A GTIN *with* check-digit

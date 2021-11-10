@@ -90,8 +90,8 @@ def _has_valid_check_digit() -> None:
         ),
         description=(
             "If the provided GTIN is *valid*, this command will return "
-            '"YES". If the provided GTIN is *valid*, this command will return '
-            '"NO".'
+            '"YES". If the provided GTIN is *invalid*, this command will '
+            'return "NO".'
         ),
     )
     parser.add_argument(
