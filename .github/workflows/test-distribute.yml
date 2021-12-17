@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install
       run: 
-        python -m venv venv
+        python3 -m venv venv
         venv/bin/pip3 install -r requirements.txt -e .
     - name: Tox
       run: venv/bin/tox -r -p
