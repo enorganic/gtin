@@ -49,7 +49,7 @@ def _prefix_length_element_filter(element: Element) -> bool:
 
 def read_gcp_prefix_format_list() -> Element:
     file_io: IO[str]
-    with open(_GCP_PREFIX_FORMAT_LIST_PATH) as file_io:
+    with open(_GCP_PREFIX_FORMAT_LIST_PATH, "rt", encoding="utf-8") as file_io:
         return XML(file_io.read())
 
 
