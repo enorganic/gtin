@@ -20,15 +20,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
-    - name: CS
-      run: cd
     - name: Install
-      run: 
-        cd &&
-        python3 -m venv venv &&
-        venv/bin/pip3 install -r requirements.txt -e .
+      run: pip3 install -r requirements.txt -e .
     - name: Tox
-      run: venv/bin/tox -r -p
+      run: tox -r -p
   test-ubuntu:
     runs-on: ubuntu-latest
     strategy:
