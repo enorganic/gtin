@@ -36,9 +36,9 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Install
-      run: make
+      run: pip3 install -r requirements.txt -e .
     - name: Tox
-      run: venv/bin/tox -r -p
+      run: tox -r -p
   distribute:
     needs:
       - test-ubuntu
@@ -51,10 +51,10 @@ jobs:
       with:
         python-version: '3.x'
     - name: Install
-      run: make
+      run: pip3 install -r requirements.txt -e .
     - name: Build and Publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: venv/bin/daves-dev-tools distribute --skip-existing
+      run: daves-dev-tools distribute --skip-existing
 
