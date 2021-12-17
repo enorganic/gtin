@@ -9,11 +9,11 @@ on:
   schedule:
     - cron: '0 0 * * *'
 jobs:
-  lint-and-test:
-    runs-on: ubuntu-latest
+  test-windows:
+    runs-on: windows-latest
     strategy:
       matrix:
-        python: [3.9]
+        python: [3.6, 3.7, 3.8, 3.9, '3.10']
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python
@@ -23,12 +23,12 @@ jobs:
     - name: Install
       run: make
     - name: Tox
-      run: venv/bin/tox  -p all -e py39-black -e py39-flake8 -e py39-mypy -e py39-pytest
-  test:
+      run: venv/bin/tox -r -p
+  test-ubuntu:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: [3.6, 3.7, 3.8, 3.9]
+        python: [3.6, 3.7, 3.8, 3.9, '3.10']
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python
@@ -38,11 +38,11 @@ jobs:
     - name: Install
       run: make
     - name: Tox
-      run: venv/bin/tox -e py-pytest -p all
+      run: venv/bin/tox -r -p
   distribute:
     needs:
-      - test
-      - lint-and-test
+      - test-ubuntu
+      - test-windows
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
