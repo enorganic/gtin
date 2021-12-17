@@ -21,8 +21,9 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: Install
-      run: 
-        python3 -m venv venv && venv/bin/pip3 install -r requirements.txt -e .
+      run: pwd
+      run: python3 -m venv venv
+      run: venv/bin/pip3 install -r requirements.txt -e .
     - name: Tox
       run: venv/bin/tox -r -p
   test-ubuntu:
