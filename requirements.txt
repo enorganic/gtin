@@ -6,7 +6,7 @@ certifi==2021.10.8
 charset-normalizer==2.0.7
 click==8.0.3
 colorama==0.4.4
-daves-dev-tools==0.43.0
+daves-dev-tools==0.55.0
 distlib==0.3.3
 docutils==0.18
 filelock==3.3.2

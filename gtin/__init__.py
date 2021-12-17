@@ -3,7 +3,6 @@ import os
 import functools
 
 from xml.etree.ElementTree import XML, Element
-from urllib.parse import urljoin
 from typing import (
     Union,
     Pattern,
@@ -30,8 +29,8 @@ __all__: List[str] = [
 ]
 
 _NON_NUMERIC_CHARACTERS_PATTERN: Pattern = re.compile(r"[^\d]")
-_GCP_PREFIX_FORMAT_LIST_PATH: str = urljoin(
-    os.path.abspath(__file__), "./GCPPrefixFormatList.xml"
+_GCP_PREFIX_FORMAT_LIST_PATH: str = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "GCPPrefixFormatList.xml"
 )
 
 lru_cache: Callable[..., Any] = functools.lru_cache
