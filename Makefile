@@ -3,6 +3,11 @@ install:
 	venv/bin/pip3 install -r requirements.txt -e .
 
 clean:
+	venv/bin/daves-dev-tools uninstall-all\
+	 -e .\
+     -e pyproject.toml\
+     -e tox.ini\
+     -e requirements.txt && \
 	venv/bin/daves-dev-tools clean
 
 gcp:
@@ -16,9 +21,7 @@ requirements:
 	 tox.ini && \
 	venv/bin/daves-dev-tools requirements freeze\
 	 . pyproject.toml tox.ini requirements.txt\
-	 -e importlib-metadata\
-	 > .requirements.txt && \
-	echo 'importlib-metadata' >> .requirements.txt && \
+	 >> .requirements.txt && \
 	rm requirements.txt && \
 	mv .requirements.txt requirements.txt
 
@@ -31,9 +34,9 @@ test:
 
 upgrade:
 	venv/bin/daves-dev-tools requirements freeze\
-	 -nv . pyproject.toml tox.ini requirements.txt\
-	 >> unversioned_requirements.txt && \
+	 -nv '*' . pyproject.toml tox.ini requirements.txt\
+	 > .unversioned_requirements.txt && \
 	venv/bin/pip3 install --upgrade --upgrade-strategy eager\
-	 -r unversioned_requirements.txt -e . && \
-	rm unversioned_requirements.txt && \
+	 -r .unversioned_requirements.txt -e . && \
+	rm .unversioned_requirements.txt && \
 	make requirements
