@@ -30,7 +30,7 @@ requirements:
 	mv .requirements.txt requirements.txt
 
 distribute:
-	venv/bin/python3 scripts/update_gcp_prefix_format_list.py
+	make gcp
 	venv/bin/daves-dev-tools distribute --skip-existing
 
 test:

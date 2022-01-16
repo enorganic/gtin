@@ -16,6 +16,7 @@ idna==3.3
 importlib-metadata
 importlib-resources
 iniconfig==1.1.1
+iso8601==1.0.2
 keyring==23.4.1
 mccabe==0.6.1
 more-itertools==8.12.0
