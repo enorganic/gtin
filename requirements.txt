@@ -6,15 +6,17 @@ certifi==2021.10.8
 charset-normalizer==2.0.10
 click==8.0.3
 colorama==0.4.4
+dataclasses==0.8; python_version == "3.6"
 daves-dev-tools==1.6.0
 distlib==0.3.4
 docutils==0.18.1
-filelock==3.4.2
+filelock==3.4.1
 flake8==4.0.1
 idna==3.3
 importlib-metadata
+importlib-resources
 iniconfig==1.1.1
-keyring==23.5.0
+keyring==23.4.1
 mccabe==0.6.1
 more-itertools==8.12.0
 mypy-extensions==0.4.3
@@ -23,7 +25,7 @@ packaging==21.3
 pathspec==0.9.0
 pip==21.3.1
 pkginfo==1.8.2
-platformdirs==2.4.1
+platformdirs==2.4.0
 pluggy==1.0.0
 py==1.11.0
 pycodestyle==2.8.0
@@ -35,8 +37,8 @@ readme-renderer==32.0
 regex==2021.11.10
 requests-toolbelt==0.9.1
 requests==2.27.1
-rfc3986==2.0.0
-setuptools==60.5.0
+rfc3986==1.5.0
+setuptools==59.6.0
 six==1.16.0
 toml==0.10.2
 tomli-w==0.4.0
@@ -44,9 +46,10 @@ tomli==1.2.3
 tox==3.24.5
 tqdm==4.62.3
 twine==3.7.1
+typed-ast==1.5.1
 typing-extensions==4.0.1
 urllib3==1.26.8
 virtualenv==20.13.0
 webencodings==0.5.1
 wheel==0.37.1
-zipp==3.7.0
+zipp==3.6.0

@@ -1,6 +1,10 @@
 install:
-	python3 -m venv venv && \
-	venv/bin/pip3 install -r requirements.txt -e .
+	(python3.6 -m venv venv || python3 -m venv venv) && \
+	venv/bin/pip3 install --upgrade pip && \
+	venv/bin/pip3 install\
+	 -r requirements.txt\
+	 -e . && \
+	venv/bin/mypy --install-types --non-interactive
 
 clean:
 	venv/bin/daves-dev-tools uninstall-all\
