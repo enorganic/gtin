@@ -34,7 +34,7 @@ distribute:
 	venv/bin/daves-dev-tools distribute --skip-existing
 
 test:
-	venv/bin/tox -p all
+	venv/bin/tox -r -p all
 
 upgrade:
 	venv/bin/daves-dev-tools requirements freeze\

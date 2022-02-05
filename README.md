@@ -347,13 +347,6 @@ Get the component parts of a *GTIN* instance as a tuple containing
 ("0", "4000101", "61360", "0")
 ```
 
-## Testing
-
-Assuming you have already followed the
-[Development Installation](#developmentinstallation) instructions, you can
-simply run `make test` in the project directory.
-
-
 ## Notes Concerning GCP
 
 If inferring a correct GCP (GS1 Company Prefix) is important for your usage,
@@ -364,9 +357,10 @@ pip3 install --upgrade gtin
 ```
 
 Why? Because GCP allocation is subject to change. When the
-GS1 (the organization which governs GCP allocation) publishes a new _GCP
-Prefix Format List_ (an XML document specifying GCP lengths according to
+GS1 (the organization which governs GCP allocation) publishes a new *GCP
+Prefix Format List* (an XML document specifying GCP lengths according to
 variable-length prefix blocks), a new distribution of this package is
-automatically packaged and distributed to [pypi.org](https://pypi.org) _with_
-the new _GCP Prefix Format List_. If you have the most recent version of this package, you will be calculating GCPs based on the most recent _GCP Prefix
-Format List_.
+automatically packaged and distributed to [pypi.org](https://pypi.org) *with*
+the new *GCP Prefix Format List*. If you have the most recent version of this
+package, you will be calculating GCPs based on the most recent *GCP Prefix
+Format List*.
