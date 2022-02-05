@@ -1,5 +1,8 @@
 # gtin
 
+[![tests](https://github.com/enorganic/gtin/actions/workflows/test-distribute.yml/badge.svg?branch=master)](https://github.com/enorganic/gtin/actions/workflows/test-distribute.yml)
+[![CodeQL](https://github.com/enorganic/gtin/actions/workflows/codeql-analysis.yml/badge.svg?branch=master)](https://github.com/enorganic/gtin/actions/workflows/codeql-analysis.yml)
+
 A library and CLI for parsing and validating GTINs ("Global Trade
 Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 
