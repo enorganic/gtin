@@ -1,48 +1,42 @@
-name: Test, Update GCP Prefix Format List, and Distribute to PYPI
+name: CI
 on:
   push:
     branches:
       - master
   pull_request:
     branches:
-      - master
+      - '*'
   schedule:
     - cron: '0 0 * * *'
 jobs:
-  test-windows:
-    runs-on: windows-latest
+  test:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python: [3.6, 3.7, 3.8, 3.9, '3.10']
+        os:
+        - ubuntu-latest
+        - windows-latest
+        - macos-latest
+        python:
+        - 3.6
+        - 3.7
+        - 3.8
+        - 3.9
+        - '3.10'
     steps:
     - uses: actions/checkout@v2
     - name: Setup Python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python }}
-    - name: Install
-      run: pip3 install -r requirements.txt -e .
-    - name: Tox
-      run: tox -r -p
-  test-ubuntu:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python: [3.6, 3.7, 3.8, 3.9, '3.10']
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python }}
-    - name: Install
-      run: pip3 install -r requirements.txt -e .
-    - name: Tox
-      run: tox -r -p
+    - name: install
+      run: pip3 install --user --upgrade -r requirements.txt pip tox -e .
+    - name: test
+      run: python3 -m tox -p all
   distribute:
+    if: github.ref == 'refs/heads/master'
     needs:
-      - test-ubuntu
-      - test-windows
+      - test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -50,11 +44,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-    - name: Install
-      run: pip3 install -r requirements.txt -e .
-    - name: Build and Publish
+    - name: install
+      run: pip3 install --user --upgrade -r requirements.txt pip tox -e .
+    - name: distribute
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: daves-dev-tools distribute --skip-existing
-
+      run: python3 update_gcp_prefix_format_list.py && daves-dev-tools distribute --skip-existing
