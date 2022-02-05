@@ -8,21 +8,8 @@ Item Numbers"—also known as UPC/EAN/JAN/ISBN).
 
 ## Installation
 
-### Basic Installation
-
 ```shell
 pip3 install gtin
-```
-
-### Development Installation
-
-To install for development of *this project*:
-
-```shell
-git clone https://github.com/enorganic/gtin.git && \
-cd gtin && \
-make && \
-source venv/bin/activate
 ```
 
 ## Usage
