@@ -18,3 +18,4 @@ pip-wheel-metadata
 !.github
 !.gitignore
 !.flake8
+!.devcontainer.json
