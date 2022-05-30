@@ -30,9 +30,9 @@ jobs:
       with:
         python-version: ${{ matrix.python }}
     - name: install
-      run: pip3 install --user --upgrade -r requirements.txt pip tox -e .
+      run: make
     - name: test
-      run: python3 -m tox -p all
+      run: make test
   distribute:
     if: github.ref == 'refs/heads/master'
     needs:
@@ -45,9 +45,9 @@ jobs:
       with:
         python-version: '3.x'
     - name: install
-      run: pip3 install --user --upgrade -r requirements.txt pip tox -e .
+      run: make
     - name: distribute
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: python3 scripts/update_gcp_prefix_format_list.py && daves-dev-tools distribute --skip-existing
+      run: make distribute

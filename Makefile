@@ -6,7 +6,7 @@ install:
 	python3 -m pip install --upgrade pip && \
 	python3 -m pip install\
 	 -r requirements.txt\
-	 -e . && \
+	 -e . --ignore-requires-python && \
 	mypy --install-types --non-interactive ;
 
 editable:
@@ -25,6 +25,7 @@ clean:
 
 distribute:
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	python3 scripts/update_gcp_prefix_format_list.py && \
 	daves-dev-tools distribute --skip-existing
 
 upgrade: 
