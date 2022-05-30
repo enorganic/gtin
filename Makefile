@@ -1,46 +1,60 @@
+# python 3.6 is used, for the time being, in order to ensure compatibility
 install:
-	(python3.6 -m venv venv || python3 -m venv venv) && \
-	venv/bin/pip3 install --upgrade pip && \
-	venv/bin/pip3 install\
+	{ python3.6 -m venv venv || python3 -m venv venv || \
+	py -3.6 -m venv venv || py -3 -m venv venv ; } && \
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	python3 -m pip install --upgrade pip twine && \
+	python3 -m pip install\
 	 -r requirements.txt\
 	 -e . && \
-	venv/bin/mypy --install-types --non-interactive
+	mypy --install-types --non-interactive && \
+	echo "Success!"
+
+editable:
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	daves-dev-tools install-editable --upgrade-strategy eager && \
+	make upgrade
 
 clean:
-	venv/bin/daves-dev-tools uninstall-all\
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	daves-dev-tools uninstall-all\
 	 -e .\
      -e pyproject.toml\
      -e tox.ini\
      -e requirements.txt && \
-	venv/bin/daves-dev-tools clean
-
-gcp:
-	venv/bin/python3 scripts/update_gcp_prefix_format_list.py
-
-requirements:
-	venv/bin/daves-dev-tools requirements update\
-	 -v\
-	 setup.cfg\
-	 pyproject.toml\
-	 tox.ini && \
-	venv/bin/daves-dev-tools requirements freeze\
-	 . pyproject.toml tox.ini requirements.txt\
-	 >> .requirements.txt && \
-	rm requirements.txt && \
-	mv .requirements.txt requirements.txt
+	daves-dev-tools clean && \
+	echo "Success!"
 
 distribute:
-	make gcp
-	venv/bin/daves-dev-tools distribute --skip-existing
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	python3 scripts/update_gcp_prefix_format_list.py && \
+	daves-dev-tools distribute --skip-existing && \
+	echo "Success!"
 
-test:
-	venv/bin/tox -r -p all
-
-upgrade:
-	venv/bin/daves-dev-tools requirements freeze\
-	 -nv '*' . pyproject.toml tox.ini requirements.txt\
+upgrade: 
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	daves-dev-tools requirements freeze\
+	 -nv '*' . pyproject.toml tox.ini daves-dev-tools \
 	 > .unversioned_requirements.txt && \
-	venv/bin/pip3 install --upgrade --upgrade-strategy eager\
-	 -r .unversioned_requirements.txt -e . && \
+	python3 -m pip install --upgrade --upgrade-strategy eager\
+	 -r .unversioned_requirements.txt && \
 	rm .unversioned_requirements.txt && \
 	make requirements
+
+requirements:
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	daves-dev-tools requirements update\
+	 -aen all\
+	 setup.cfg pyproject.toml tox.ini && \
+	daves-dev-tools requirements freeze\
+	 -nv setuptools -nv filelock -nv platformdirs\
+	 . pyproject.toml tox.ini daves-dev-tools\
+	 > requirements.txt && \
+	echo "Success!"
+
+test:
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && tox -r -p
+
+gcp:
+	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
+	python3 scripts/update_gcp_prefix_format_list.py
