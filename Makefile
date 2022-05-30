@@ -6,7 +6,7 @@ install:
 	python3 -m pip install --upgrade pip twine && \
 	python3 -m pip install\
 	 -r requirements.txt\
-	 -e . --ignore-requires-python && \
+	 -e . && \
 	mypy --install-types --non-interactive && \
 	echo "Success!"
 
