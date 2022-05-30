@@ -3,11 +3,12 @@ install:
 	{ python3.6 -m venv venv || python3 -m venv venv || \
 	py -3.6 -m venv venv || py -3 -m venv venv ; } && \
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
-	python3 -m pip install --upgrade pip && \
+	python3 -m pip install --upgrade pip twine && \
 	python3 -m pip install\
 	 -r requirements.txt\
 	 -e . --ignore-requires-python && \
-	mypy --install-types --non-interactive ;
+	mypy --install-types --non-interactive && \
+	echo "Success!"
 
 editable:
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
@@ -21,12 +22,14 @@ clean:
      -e pyproject.toml\
      -e tox.ini\
      -e requirements.txt && \
-	daves-dev-tools clean
+	daves-dev-tools clean && \
+	echo "Success!"
 
 distribute:
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
 	python3 scripts/update_gcp_prefix_format_list.py && \
-	daves-dev-tools distribute --skip-existing
+	daves-dev-tools distribute --skip-existing && \
+	echo "Success!"
 
 upgrade: 
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
@@ -46,11 +49,12 @@ requirements:
 	daves-dev-tools requirements freeze\
 	 -nv setuptools -nv filelock -nv platformdirs\
 	 . pyproject.toml tox.ini daves-dev-tools\
-	 > requirements.txt
+	 > requirements.txt && \
+	echo "Success!"
 
 test:
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && tox -r -p
 
 gcp:
 	{ . venv/bin/activate || venv/Scripts/activate.bat ; } && \
-	venv/bin/python3 scripts/update_gcp_prefix_format_list.py]
+	python3 scripts/update_gcp_prefix_format_list.py
