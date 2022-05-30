@@ -259,7 +259,7 @@ A *GTIN* initialized without any arguments:
 ```python
 >>> from gtin import GTIN
 ... print(repr(GTIN()))
-gtin.GTIN("00000000000000")
+GTIN("00000000000000")
 ```
 
 Typical usage will require converting your *GTIN* to a *str* prior to use in
