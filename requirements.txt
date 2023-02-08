@@ -6,7 +6,7 @@ cffi==1.15.0
 charset-normalizer==2.0.12
 click==8.0.4
 colorama==0.4.4
-cryptography==37.0.2
+cryptography==39.0.1
 dataclasses==0.8; python_version == "3.6"
 daves-dev-tools==1.26.0
 distlib==0.3.4
